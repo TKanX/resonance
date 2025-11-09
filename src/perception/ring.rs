@@ -1,0 +1,218 @@
+use crate::core::atom::AtomId;
+use crate::core::bond::BondId;
+use crate::perception::ChemicalPerception;
+use std::collections::{HashMap, HashSet, VecDeque};
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Ring {
+    pub atom_ids: Vec<AtomId>,
+    pub bond_ids: Vec<BondId>,
+}
+
+impl Ring {
+    pub fn new(mut atom_ids: Vec<AtomId>, mut bond_ids: Vec<BondId>) -> Self {
+        atom_ids.sort_unstable();
+        atom_ids.dedup();
+        bond_ids.sort_unstable();
+        bond_ids.dedup();
+        Self { atom_ids, bond_ids }
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct RingInfo {
+    pub rings: Vec<Ring>,
+}
+
+pub fn find_sssr(perception: &ChemicalPerception) -> RingInfo {
+    let num_components = count_components(perception);
+    let cyclomatic_number =
+        perception.bonds.len() as isize - perception.atoms.len() as isize + num_components as isize;
+
+    if cyclomatic_number <= 0 {
+        return RingInfo::default();
+    }
+
+    let candidates = enumerate_cycle_candidates(perception);
+    let selected_rings =
+        select_minimal_cycle_basis(perception, candidates, cyclomatic_number as usize);
+
+    RingInfo {
+        rings: selected_rings,
+    }
+}
+
+struct PathData {
+    atom_ids: Vec<AtomId>,
+    bond_ids: Vec<BondId>,
+}
+
+fn enumerate_cycle_candidates(perception: &ChemicalPerception) -> Vec<Ring> {
+    let mut candidates = Vec::new();
+    let mut seen_signatures: HashSet<Vec<BondId>> = HashSet::new();
+
+    for bond in &perception.bonds {
+        if let Some(path) =
+            shortest_path_excluding_bond(perception, bond.start_atom_id, bond.end_atom_id, bond.id)
+        {
+            let mut all_bond_ids = path.bond_ids;
+            all_bond_ids.push(bond.id);
+
+            all_bond_ids.sort_unstable();
+            if seen_signatures.insert(all_bond_ids.clone()) {
+                candidates.push(Ring::new(path.atom_ids, all_bond_ids));
+            }
+        }
+    }
+    candidates
+}
+
+fn shortest_path_excluding_bond(
+    perception: &ChemicalPerception,
+    start_atom_id: AtomId,
+    end_atom_id: AtomId,
+    forbidden_bond_id: BondId,
+) -> Option<PathData> {
+    let start_idx = perception.atom_id_to_index.get(&start_atom_id)?;
+    let end_idx = perception.atom_id_to_index.get(&end_atom_id)?;
+
+    let mut queue = VecDeque::new();
+    let mut visited = vec![false; perception.atoms.len()];
+    let mut parent: Vec<Option<(usize, BondId)>> = vec![None; perception.atoms.len()];
+
+    visited[*start_idx] = true;
+    queue.push_back(*start_idx);
+
+    while let Some(current_idx) = queue.pop_front() {
+        if current_idx == *end_idx {
+            break;
+        }
+        for (neighbor_atom_id, bond_id) in &perception.adjacency[current_idx] {
+            if *bond_id == forbidden_bond_id {
+                continue;
+            }
+            if let Some(neighbor_idx) = perception.atom_id_to_index.get(neighbor_atom_id) {
+                if !visited[*neighbor_idx] {
+                    visited[*neighbor_idx] = true;
+                    parent[*neighbor_idx] = Some((current_idx, *bond_id));
+                    queue.push_back(*neighbor_idx);
+                }
+            }
+        }
+    }
+
+    if !visited[*end_idx] {
+        return None;
+    }
+
+    let mut atom_ids = Vec::new();
+    let mut bond_ids = Vec::new();
+    let mut cursor = *end_idx;
+
+    while let Some((prev_idx, bond_id)) = parent[cursor] {
+        atom_ids.push(perception.atoms[cursor].id);
+        bond_ids.push(bond_id);
+        cursor = prev_idx;
+    }
+    atom_ids.push(perception.atoms[cursor].id);
+
+    atom_ids.reverse();
+    bond_ids.reverse();
+
+    Some(PathData { atom_ids, bond_ids })
+}
+
+fn select_minimal_cycle_basis(
+    perception: &ChemicalPerception,
+    mut candidates: Vec<Ring>,
+    cyclomatic_number: usize,
+) -> Vec<Ring> {
+    if cyclomatic_number == 0 {
+        return Vec::new();
+    }
+
+    candidates.sort_by_key(|r| r.bond_ids.len());
+
+    let mut selected_rings = Vec::new();
+    let mut basis: Vec<BitVec> = Vec::new();
+
+    for ring in candidates {
+        let mut bitvec = BitVec::from_bond_ids(&ring.bond_ids, &perception.bond_id_to_index);
+
+        for basis_vec in &basis {
+            bitvec.xor(basis_vec);
+        }
+
+        if !bitvec.is_zero() {
+            basis.push(bitvec);
+            selected_rings.push(ring);
+            if selected_rings.len() == cyclomatic_number {
+                break;
+            }
+        }
+    }
+
+    selected_rings
+}
+
+fn count_components(perception: &ChemicalPerception) -> usize {
+    let mut visited = vec![false; perception.atoms.len()];
+    let mut components = 0;
+
+    for i in 0..perception.atoms.len() {
+        if !visited[i] {
+            components += 1;
+            let mut stack = vec![i];
+            visited[i] = true;
+            while let Some(current) = stack.pop() {
+                for (neighbor_id, _) in &perception.adjacency[current] {
+                    if let Some(neighbor_idx) = perception.atom_id_to_index.get(neighbor_id) {
+                        if !visited[*neighbor_idx] {
+                            visited[*neighbor_idx] = true;
+                            stack.push(*neighbor_idx);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    components
+}
+
+#[derive(Clone)]
+struct BitVec {
+    data: Vec<u64>,
+}
+
+impl BitVec {
+    fn new(size: usize) -> Self {
+        let words = (size + 63) / 64;
+        Self {
+            data: vec![0; words],
+        }
+    }
+
+    fn from_bond_ids(bond_ids: &[BondId], bond_id_to_index: &HashMap<BondId, usize>) -> Self {
+        let mut bitvec = Self::new(bond_id_to_index.len());
+        for bond_id in bond_ids {
+            if let Some(idx) = bond_id_to_index.get(bond_id) {
+                let word = idx / 64;
+                let bit = idx % 64;
+                if word < bitvec.data.len() {
+                    bitvec.data[word] |= 1u64 << bit;
+                }
+            }
+        }
+        bitvec
+    }
+
+    fn xor(&mut self, other: &Self) {
+        for (a, b) in self.data.iter_mut().zip(&other.data) {
+            *a ^= *b;
+        }
+    }
+
+    fn is_zero(&self) -> bool {
+        self.data.iter().all(|&word| word == 0)
+    }
+}
