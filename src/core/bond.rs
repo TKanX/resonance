@@ -14,7 +14,7 @@ impl BondOrder {
             BondOrder::Single => 1,
             BondOrder::Double => 2,
             BondOrder::Triple => 3,
-            BondOrder::Aromatic => 1, // Placeholder value; effective multiplicity is handled after Kekulization.
+            BondOrder::Aromatic => 1, // Placeholder value; effective multiplicity is handled after kekulization.
         }
     }
 }
