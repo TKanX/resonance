@@ -9,6 +9,13 @@ macro_rules! define_elements {
         }
 
         impl Element {
+            pub fn from_atomic_number(atomic_number: u8) -> Option<Self> {
+                match atomic_number {
+                    $($value => Some(Element::$name),)*
+                    _ => None,
+                }
+            }
+
             pub fn atomic_number(self) -> u8 {
                 self as u8
             }
@@ -28,6 +35,27 @@ macro_rules! define_elements {
                     _ => return None,
                 };
                 Some(electrons)
+            }
+        }
+
+        impl std::str::FromStr for Element {
+            type Err = String;
+
+            fn from_str(s: &str) -> Result<Self, Self::Err> {
+                let s = s.trim();
+                // Try parse as atomic number first
+                if let Ok(n) = s.parse::<u8>() {
+                    if let Some(e) = Element::from_atomic_number(n) {
+                        return Ok(e);
+                    }
+                }
+                // Try match symbol (case-insensitive)
+                $(
+                    if s.eq_ignore_ascii_case(stringify!($name)) {
+                        return Ok(Element::$name);
+                    }
+                )*
+                Err(format!("invalid element: {}", s))
             }
         }
     };
