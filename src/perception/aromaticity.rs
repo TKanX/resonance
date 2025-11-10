@@ -156,7 +156,7 @@ fn is_system_aromatic(perception: &ChemicalPerception, system_ring_indices: &[us
     // Sum π electrons contributed by each atom in the system.
     let mut pi_electron_count = 0;
     for &atom_idx in &system_atom_indices {
-        pi_electron_count += pi_electrons_for_atom(perception, atom_idx);
+        pi_electron_count += pi_electrons_for_atom(perception, atom_idx, &system_bond_indices);
     }
 
     // Apply Hückel's rule: 4n + 2 π electrons.
@@ -172,20 +172,30 @@ fn is_potential_sp2_hybrid(perception: &ChemicalPerception, atom_idx: usize) -> 
 }
 
 /// Encapsulates the chemical rules for counting π electrons contributed by an atom.
-fn pi_electrons_for_atom(perception: &ChemicalPerception, atom_idx: usize) -> u32 {
+fn pi_electrons_for_atom(
+    perception: &ChemicalPerception,
+    atom_idx: usize,
+    system_bond_indices: &HashSet<usize>,
+) -> u32 {
     let atom = &perception.atoms[atom_idx];
 
     // Case 1: Atom is part of a multiple bond within the ring system.
     // It contributes 1 π electron. This is the most common case (e.g., C in benzene).
-    let is_in_multiple_bond = perception.adjacency[atom_idx].iter().any(|&(_, bond_id)| {
-        if let Some(&bond_idx) = perception.bond_id_to_index.get(&bond_id) {
-            let bond = &perception.bonds[bond_idx];
-            bond.order == BondOrder::Double || bond.order == BondOrder::Triple
-        } else {
-            false
-        }
-    });
-    if is_in_multiple_bond {
+    let is_in_multiple_bond_in_system =
+        perception.adjacency[atom_idx].iter().any(|&(_, bond_id)| {
+            if let Some(&bond_idx) = perception.bond_id_to_index.get(&bond_id) {
+                if system_bond_indices.contains(&bond_idx) {
+                    let bond = &perception.bonds[bond_idx];
+                    matches!(bond.order, BondOrder::Double | BondOrder::Triple)
+                } else {
+                    false
+                }
+            } else {
+                false
+            }
+        });
+
+    if is_in_multiple_bond_in_system {
         return 1;
     }
 
@@ -199,13 +209,11 @@ fn pi_electrons_for_atom(perception: &ChemicalPerception, atom_idx: usize) -> u3
         // Furan-like Oxygen or Thiophene-like Sulfur
         Element::O | Element::S if atom.total_degree == 2 => 2,
         // Carbocation or Carbanion in a ring
-        Element::C if atom.total_degree == 3 => {
-            match atom.formal_charge {
-                -1 => 2, // Carbanion (e.g., cyclopentadienyl anion)
-                1 => 0,  // Carbocation (e.g., tropylium cation)
-                _ => 0,
-            }
-        }
+        Element::C if atom.total_degree == 3 => match atom.formal_charge {
+            -1 => 2, // Carbanion (e.g., cyclopentadienyl anion)
+            1 => 0,  // Carbocation (e.g., tropylium cation)
+            _ => 0,
+        },
         // Boron in a ring
         Element::B if atom.total_degree == 3 => 0, // Has an empty p-orbital, contributes 0 electrons.
         _ => 0,                                    // Default case: atom does not contribute.
