@@ -208,6 +208,11 @@ impl BitVec {
     }
 
     fn xor(&mut self, other: &Self) {
+        debug_assert_eq!(
+            self.data.len(),
+            other.data.len(),
+            "BitVec XOR operation requires vectors of the same size."
+        );
         for (a, b) in self.data.iter_mut().zip(&other.data) {
             *a ^= *b;
         }
