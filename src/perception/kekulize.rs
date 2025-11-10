@@ -100,15 +100,15 @@ fn kekule_backtrack(
     atom_counts: &mut HashMap<AtomId, u8>,
     attempts: &mut usize,
 ) -> bool {
-    if *attempts >= KEKULIZATION_ATTEMPT_LIMIT {
-        return false;
-    }
-
     if position == unassigned_bonds.len() {
         return true;
     }
 
+    if *attempts >= KEKULIZATION_ATTEMPT_LIMIT {
+        return false;
+    }
     *attempts += 1;
+
     let bond_idx = unassigned_bonds[position];
     let (start_id, end_id) = {
         let bond = &perception.bonds[bond_idx];
