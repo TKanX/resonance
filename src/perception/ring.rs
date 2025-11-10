@@ -196,7 +196,7 @@ impl BitVec {
     fn from_bond_ids(bond_ids: &[BondId], bond_id_to_index: &HashMap<BondId, usize>) -> Self {
         let mut bitvec = Self::new(bond_id_to_index.len());
         for bond_id in bond_ids {
-            if let Some(idx) = bond_id_to_index.get(bond_id) {
+            if let Some(&idx) = bond_id_to_index.get(bond_id) {
                 let word = idx / 64;
                 let bit = idx % 64;
                 if word < bitvec.data.len() {
