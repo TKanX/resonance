@@ -42,12 +42,13 @@ fn collect_aromatic_component(
                     if let Some(&neighbor_bond_idx) =
                         perception.bond_id_to_index.get(&neighbor_bond_id)
                     {
-                        if perception.bonds[neighbor_bond_idx].is_aromatic
-                            && !visited_bonds[neighbor_bond_idx]
+                        if !perception.bonds[neighbor_bond_idx].is_aromatic
+                            || visited_bonds[neighbor_bond_idx]
                         {
-                            visited_bonds[neighbor_bond_idx] = true;
-                            queue.push_back(neighbor_bond_idx);
+                            continue;
                         }
+                        visited_bonds[neighbor_bond_idx] = true;
+                        queue.push_back(neighbor_bond_idx);
                     }
                 }
             }
