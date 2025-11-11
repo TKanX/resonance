@@ -3,6 +3,7 @@ use crate::core::bond::{BondId, BondOrder};
 use crate::errors::PerceptionError;
 use crate::graph::traits::{AtomView, BondView, MoleculeGraph};
 use crate::perception::ring::RingInfo;
+use crate::resonance;
 use std::collections::{HashMap, HashSet};
 
 mod aromaticity;
@@ -178,6 +179,8 @@ impl ChemicalPerception {
         kekulize::kekulize(&mut perception)?;
 
         state::perceive(&mut perception);
+
+        resonance::candidate::determine(&mut perception);
 
         Ok(perception)
     }
