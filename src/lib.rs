@@ -3,3 +3,4 @@ pub mod errors;
 pub mod graph;
 pub mod molecule;
 pub mod perception;
+pub mod resonance;
