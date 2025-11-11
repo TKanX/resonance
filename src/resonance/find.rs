@@ -117,3 +117,236 @@ fn group_systems(
     systems.sort_by(|a, b| a.bonds.cmp(&b.bonds));
     systems
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::atom::{AtomId, Element};
+    use crate::core::bond::{BondId, BondOrder};
+    use crate::perception::{ChemicalPerception, Hybridization, PerceivedAtom, PerceivedBond};
+    use std::collections::HashMap;
+
+    #[derive(Clone, Copy)]
+    struct AtomSetup {
+        element: Element,
+        is_candidate: bool,
+    }
+
+    #[derive(Clone, Copy)]
+    struct BondSetup {
+        id: BondId,
+        start: AtomId,
+        end: AtomId,
+        order: BondOrder,
+        is_aromatic: bool,
+        kekule_order: Option<BondOrder>,
+    }
+
+    impl AtomSetup {
+        fn candidate(element: Element) -> Self {
+            Self {
+                element,
+                is_candidate: true,
+            }
+        }
+
+        fn saturated(element: Element) -> Self {
+            Self {
+                element,
+                is_candidate: false,
+            }
+        }
+    }
+
+    impl BondSetup {
+        fn new(id: BondId, start: AtomId, end: AtomId, order: BondOrder) -> Self {
+            Self {
+                id,
+                start,
+                end,
+                order,
+                is_aromatic: false,
+                kekule_order: None,
+            }
+        }
+
+        fn aromatic(mut self) -> Self {
+            self.is_aromatic = true;
+            self
+        }
+
+        fn with_kekule(mut self, kekule: BondOrder) -> Self {
+            self.kekule_order = Some(kekule);
+            self
+        }
+    }
+
+    fn build_perception(atoms: &[AtomSetup], bonds: &[BondSetup]) -> ChemicalPerception {
+        let mut adjacency: Vec<Vec<(usize, BondId)>> = vec![Vec::new(); atoms.len()];
+        let mut bond_vec = Vec::with_capacity(bonds.len());
+        let mut bond_id_to_index = HashMap::new();
+
+        for (idx, bond) in bonds.iter().enumerate() {
+            let start = bond.start as usize;
+            let end = bond.end as usize;
+            adjacency[start].push((end, bond.id));
+            adjacency[end].push((start, bond.id));
+            bond_id_to_index.insert(bond.id, idx);
+            bond_vec.push(PerceivedBond {
+                id: bond.id,
+                order: bond.order,
+                start_atom_id: bond.start,
+                end_atom_id: bond.end,
+                is_in_ring: false,
+                is_aromatic: bond.is_aromatic,
+                kekule_order: bond.kekule_order,
+            });
+        }
+
+        let mut atom_vec = Vec::with_capacity(atoms.len());
+        let mut atom_id_to_index = HashMap::new();
+        for (idx, atom) in atoms.iter().enumerate() {
+            let hybridization = if atom.is_candidate {
+                Hybridization::SP2
+            } else {
+                Hybridization::SP3
+            };
+
+            atom_vec.push(PerceivedAtom {
+                id: idx,
+                element: atom.element,
+                formal_charge: 0,
+                total_degree: adjacency[idx].len() as u8,
+                total_valence: 0,
+                is_in_ring: false,
+                is_aromatic: false,
+                hybridization,
+                is_conjugation_candidate: atom.is_candidate,
+                lone_pairs: 0,
+            });
+            atom_id_to_index.insert(idx, idx);
+        }
+
+        ChemicalPerception {
+            atoms: atom_vec,
+            bonds: bond_vec,
+            adjacency,
+            atom_id_to_index,
+            bond_id_to_index,
+            ring_info: Default::default(),
+        }
+    }
+
+    #[test]
+    fn empty_perception_returns_no_systems() {
+        let perception = ChemicalPerception {
+            atoms: Vec::new(),
+            bonds: Vec::new(),
+            adjacency: Vec::new(),
+            atom_id_to_index: HashMap::new(),
+            bond_id_to_index: HashMap::new(),
+            ring_info: Default::default(),
+        };
+
+        assert!(find_systems(&perception).is_empty());
+    }
+
+    #[test]
+    fn isolated_double_bond_forms_single_resonance_system() {
+        let perception = build_perception(
+            &[
+                AtomSetup::candidate(Element::C),
+                AtomSetup::candidate(Element::C),
+            ],
+            &[BondSetup::new(0, 0, 1, BondOrder::Double)],
+        );
+
+        let systems = find_systems(&perception);
+        assert_eq!(systems.len(), 1);
+        assert_eq!(systems[0].atoms, vec![0, 1]);
+        assert_eq!(systems[0].bonds, vec![0]);
+    }
+
+    #[test]
+    fn conjugation_expands_through_candidate_single_bonds() {
+        let perception = build_perception(
+            &[
+                AtomSetup::candidate(Element::C),
+                AtomSetup::candidate(Element::C),
+                AtomSetup::candidate(Element::C),
+            ],
+            &[
+                BondSetup::new(0, 0, 1, BondOrder::Double),
+                BondSetup::new(1, 1, 2, BondOrder::Single),
+            ],
+        );
+
+        let systems = find_systems(&perception);
+        assert_eq!(systems.len(), 1);
+        assert_eq!(systems[0].atoms, vec![0, 1, 2]);
+        assert_eq!(systems[0].bonds, vec![0, 1]);
+    }
+
+    #[test]
+    fn non_candidate_neighbors_block_conjugation_growth() {
+        let perception = build_perception(
+            &[
+                AtomSetup::candidate(Element::C),
+                AtomSetup::candidate(Element::C),
+                AtomSetup::saturated(Element::C),
+            ],
+            &[
+                BondSetup::new(0, 0, 1, BondOrder::Double),
+                BondSetup::new(1, 1, 2, BondOrder::Single),
+            ],
+        );
+
+        let systems = find_systems(&perception);
+        assert_eq!(systems.len(), 1);
+        assert_eq!(systems[0].atoms, vec![0, 1]);
+        assert_eq!(systems[0].bonds, vec![0]);
+    }
+
+    #[test]
+    fn disconnected_sets_remain_distinct_systems() {
+        let perception = build_perception(
+            &[
+                AtomSetup::candidate(Element::C),
+                AtomSetup::candidate(Element::C),
+                AtomSetup::candidate(Element::C),
+                AtomSetup::candidate(Element::C),
+            ],
+            &[
+                BondSetup::new(2, 0, 1, BondOrder::Double),
+                BondSetup::new(5, 2, 3, BondOrder::Double),
+            ],
+        );
+
+        let systems = find_systems(&perception);
+        assert_eq!(systems.len(), 2);
+        assert_eq!(systems[0].atoms, vec![0, 1]);
+        assert_eq!(systems[0].bonds, vec![2]);
+        assert_eq!(systems[1].atoms, vec![2, 3]);
+        assert_eq!(systems[1].bonds, vec![5]);
+    }
+
+    #[test]
+    fn aromatic_and_kekule_metadata_seed_conjugation() {
+        let perception = build_perception(
+            &[
+                AtomSetup::candidate(Element::C),
+                AtomSetup::candidate(Element::C),
+                AtomSetup::candidate(Element::C),
+            ],
+            &[
+                BondSetup::new(0, 0, 1, BondOrder::Single).aromatic(),
+                BondSetup::new(3, 1, 2, BondOrder::Single).with_kekule(BondOrder::Double),
+            ],
+        );
+
+        let systems = find_systems(&perception);
+        assert_eq!(systems.len(), 1);
+        assert_eq!(systems[0].atoms, vec![0, 1, 2]);
+        assert_eq!(systems[0].bonds, vec![0, 3]);
+    }
+}
