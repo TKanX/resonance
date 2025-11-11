@@ -3,13 +3,14 @@ use crate::core::bond::{BondId, BondOrder};
 use crate::errors::PerceptionError;
 use crate::graph::traits::{AtomView, BondView, MoleculeGraph};
 use crate::perception::ring::RingInfo;
-use crate::perception::state::Hybridization;
 use std::collections::{HashMap, HashSet};
 
 mod aromaticity;
 mod kekulize;
 mod ring;
 mod state;
+
+pub use state::Hybridization;
 
 #[derive(Clone, Debug)]
 pub struct PerceivedAtom {
