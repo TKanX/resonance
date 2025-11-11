@@ -14,54 +14,43 @@ pub fn find_systems(perception: &ChemicalPerception) -> Vec<ResonanceSystem> {
 
 fn find_and_expand_conjugated_bonds(perception: &ChemicalPerception) -> HashSet<usize> {
     let mut conjugated: HashSet<usize> = HashSet::new();
+    let mut frontier: VecDeque<usize> = VecDeque::new();
 
     for (bond_idx, bond) in perception.bonds.iter().enumerate() {
         let effective_order = bond.kekule_order.unwrap_or(bond.order);
         if bond.is_aromatic || matches!(effective_order, BondOrder::Double | BondOrder::Triple) {
-            conjugated.insert(bond_idx);
+            if conjugated.insert(bond_idx) {
+                frontier.push_back(bond_idx);
+            }
         }
     }
 
-    let mut bonds_to_add_in_pass: Vec<usize> = Vec::new();
-    loop {
-        for atom_idx in 0..perception.atoms.len() {
+    while let Some(bond_idx) = frontier.pop_front() {
+        let bond = &perception.bonds[bond_idx];
+
+        for atom_id in [bond.start_atom_id, bond.end_atom_id] {
+            let atom_idx = perception.atom_id_to_index[&atom_id];
             let atom = &perception.atoms[atom_idx];
+
             if !atom.is_conjugation_candidate {
                 continue;
             }
 
-            let is_connected_to_system =
-                perception.adjacency[atom_idx].iter().any(|&(_, bond_id)| {
-                    let bond_idx = perception.bond_id_to_index[&bond_id];
-                    conjugated.contains(&bond_idx)
-                });
+            for &(_, neighbor_bond_id) in &perception.adjacency[atom_idx] {
+                let neighbor_bond_idx = perception.bond_id_to_index[&neighbor_bond_id];
 
-            if !is_connected_to_system {
-                continue;
-            }
+                if !conjugated.contains(&neighbor_bond_idx) {
+                    let neighbor_bond = &perception.bonds[neighbor_bond_idx];
+                    let other_end_id = neighbor_bond.other_end(atom.id);
+                    let other_end_idx = perception.atom_id_to_index[&other_end_id];
 
-            for &(_, bond_id) in &perception.adjacency[atom_idx] {
-                let bond_idx = perception.bond_id_to_index[&bond_id];
-                if conjugated.contains(&bond_idx) {
-                    continue;
-                }
-
-                let bond = &perception.bonds[bond_idx];
-                let other_end_id = bond.other_end(atom.id);
-                let other_end_idx = perception.atom_id_to_index[&other_end_id];
-
-                if perception.atoms[other_end_idx].is_conjugation_candidate {
-                    bonds_to_add_in_pass.push(bond_idx);
+                    if perception.atoms[other_end_idx].is_conjugation_candidate {
+                        if conjugated.insert(neighbor_bond_idx) {
+                            frontier.push_back(neighbor_bond_idx);
+                        }
+                    }
                 }
             }
-        }
-
-        if bonds_to_add_in_pass.is_empty() {
-            break;
-        }
-
-        for bond_idx in bonds_to_add_in_pass.drain(..) {
-            conjugated.insert(bond_idx);
         }
     }
 
