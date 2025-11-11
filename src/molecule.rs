@@ -10,6 +10,9 @@ pub enum MoleculeBuildError {
 
     #[error("duplicate bond: a bond already exists between atoms {0} and {1}")]
     DuplicateBond(AtomId, AtomId),
+
+    #[error("self-loop bond is not allowed on atom {0}")]
+    SelfLoopBond(AtomId),
 }
 
 #[derive(Clone, Debug)]
@@ -83,7 +86,9 @@ impl Molecule {
         end_id: AtomId,
         order: BondOrder,
     ) -> Result<BondId, MoleculeBuildError> {
-        assert_ne!(start_id, end_id, "Self-loop bonds are not supported.");
+        if start_id == end_id {
+            return Err(MoleculeBuildError::SelfLoopBond(start_id));
+        }
 
         let max_id = self.atoms.len().saturating_sub(1);
         if start_id >= self.atoms.len() {
