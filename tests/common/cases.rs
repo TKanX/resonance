@@ -288,4 +288,20 @@ resonance_cases! {
             { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
         ],
     },
+    thymine_aromatic_input => {
+        title: "Thymine (Aromatic Input)",
+        tags: &["biomolecule", "nucleobase", "heterocycle"],
+        molecule: molecules::build_thymine_aromatic,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
+        ],
+    },
+    thymine_kekule_input => {
+        title: "Thymine (Kekulé Input)",
+        tags: &["biomolecule", "nucleobase", "heterocycle", "kekule"],
+        molecule: molecules::build_thymine_kekule,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
+        ],
+    },
 }
