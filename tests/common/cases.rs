@@ -132,4 +132,12 @@ resonance_cases! {
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
         ],
     },
+    threonine_zwitterion => {
+        title: "Threonine Zwitterion",
+        tags: &["biomolecule", "zwitterion", "carboxylate"],
+        molecule: molecules::build_threonine_zwitterion,
+        systems: [
+            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
+        ],
+    },
 }
