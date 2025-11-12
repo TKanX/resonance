@@ -1,15 +1,21 @@
+//! Ring perception utilities based on minimal cycle bases.
+
 use crate::core::atom::AtomId;
 use crate::core::bond::BondId;
 use crate::perception::ChemicalPerception;
 use std::collections::{HashMap, HashSet, VecDeque};
 
+/// Canonical representation of a detected ring.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Ring {
+    /// Atoms that belong to the ring.
     pub atom_ids: Vec<AtomId>,
+    /// Bonds that belong to the ring.
     pub bond_ids: Vec<BondId>,
 }
 
 impl Ring {
+    /// Constructs a ring and normalises the atom/bond order.
     pub fn new(mut atom_ids: Vec<AtomId>, mut bond_ids: Vec<BondId>) -> Self {
         atom_ids.sort_unstable();
         atom_ids.dedup();
@@ -19,11 +25,14 @@ impl Ring {
     }
 }
 
+/// Aggregated ring metadata.
 #[derive(Debug, Clone, Default)]
 pub struct RingInfo {
+    /// Rings forming the Smallest Set of Smallest Rings (SSSR).
     pub rings: Vec<Ring>,
 }
 
+/// Computes the smallest set of smallest rings for a perceived molecule.
 pub fn find_sssr(perception: &ChemicalPerception) -> RingInfo {
     let num_components = count_components(perception);
     let cyclomatic_number =
@@ -42,11 +51,13 @@ pub fn find_sssr(perception: &ChemicalPerception) -> RingInfo {
     }
 }
 
+/// Stores data for a shortest path search used during ring enumeration.
 struct PathData {
     atom_ids: Vec<AtomId>,
     bond_ids: Vec<BondId>,
 }
 
+/// Enumerates simple cycle candidates by removing each bond in turn.
 fn enumerate_cycle_candidates(perception: &ChemicalPerception) -> Vec<Ring> {
     let mut candidates = Vec::new();
     let mut seen_signatures: HashSet<Vec<BondId>> = HashSet::new();
@@ -67,6 +78,7 @@ fn enumerate_cycle_candidates(perception: &ChemicalPerception) -> Vec<Ring> {
     candidates
 }
 
+/// Computes the shortest path between two atoms while omitting a bond.
 fn shortest_path_excluding_bond(
     perception: &ChemicalPerception,
     start_atom_id: AtomId,
@@ -120,6 +132,7 @@ fn shortest_path_excluding_bond(
     Some(PathData { atom_ids, bond_ids })
 }
 
+/// Selects a minimal cycle basis using Gaussian elimination over GF(2).
 fn select_minimal_cycle_basis(
     perception: &ChemicalPerception,
     mut candidates: Vec<Ring>,
@@ -158,6 +171,7 @@ fn select_minimal_cycle_basis(
     selected_rings
 }
 
+/// Counts connected components in the perception adjacency list.
 fn count_components(perception: &ChemicalPerception) -> usize {
     let mut visited = vec![false; perception.atoms.len()];
     let mut components = 0;
@@ -180,12 +194,14 @@ fn count_components(perception: &ChemicalPerception) -> usize {
     components
 }
 
+/// Bit-set used for parity calculations during minimal cycle selection.
 #[derive(Clone)]
 struct BitVec {
     data: Vec<u64>,
 }
 
 impl BitVec {
+    /// Creates an empty bit-set with the requested capacity.
     fn new(size: usize) -> Self {
         let words = size.div_ceil(64);
         Self {
@@ -193,6 +209,7 @@ impl BitVec {
         }
     }
 
+    /// Constructs a bit-set with bits set for the provided bond identifiers.
     fn from_bond_ids(bond_ids: &[BondId], bond_id_to_index: &HashMap<BondId, usize>) -> Self {
         let mut bitvec = Self::new(bond_id_to_index.len());
         for bond_id in bond_ids {
@@ -207,6 +224,7 @@ impl BitVec {
         bitvec
     }
 
+    /// Computes the bit-wise XOR with another `BitVec` of equal length.
     fn xor(&mut self, other: &Self) {
         debug_assert_eq!(
             self.data.len(),
@@ -218,10 +236,12 @@ impl BitVec {
         }
     }
 
+    /// Returns `true` when no bits are set.
     fn is_zero(&self) -> bool {
         self.data.iter().all(|&word| word == 0)
     }
 
+    /// Returns `true` when the bit at `idx` is set.
     fn test(&self, idx: usize) -> bool {
         let word_idx = idx / 64;
         let bit_idx = idx % 64;
@@ -231,6 +251,7 @@ impl BitVec {
         (self.data[word_idx] & (1u64 << bit_idx)) != 0
     }
 
+    /// Returns the position of the highest set bit, if any.
     fn leading_one(&self) -> Option<usize> {
         for (word_idx, &word) in self.data.iter().enumerate().rev() {
             if word != 0 {
