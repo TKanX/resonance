@@ -1833,3 +1833,35 @@ pub fn build_decalin() -> TestMolecule {
 
     mol
 }
+
+pub fn build_abaxes() -> TestMolecule {
+    let mut mol = TestMolecule::new();
+
+    mol.add_atom(0, Element::S, 0);
+    mol.add_atom(1, Element::C, 0);
+    mol.add_atom(2, Element::C, 0);
+    mol.add_atom(3, Element::S, 0);
+    mol.add_atom(4, Element::C, 0);
+    mol.add_atom(5, Element::C, 0);
+    mol.add_atom(6, Element::H, 0);
+    mol.add_atom(7, Element::H, 0);
+    mol.add_atom(8, Element::H, 0);
+    mol.add_atom(9, Element::H, 0);
+    mol.add_atom(10, Element::H, 0);
+    mol.add_atom(11, Element::H, 0);
+
+    mol.add_bond(0, 0, 1, BondOrder::Single);
+    mol.add_bond(1, 1, 2, BondOrder::Double);
+    mol.add_bond(2, 2, 3, BondOrder::Single);
+    mol.add_bond(3, 3, 4, BondOrder::Single);
+    mol.add_bond(4, 4, 5, BondOrder::Single);
+    mol.add_bond(5, 5, 0, BondOrder::Single);
+    mol.add_bond(6, 1, 6, BondOrder::Single);
+    mol.add_bond(7, 2, 7, BondOrder::Single);
+    mol.add_bond(8, 4, 8, BondOrder::Single);
+    mol.add_bond(9, 4, 9, BondOrder::Single);
+    mol.add_bond(10, 5, 10, BondOrder::Single);
+    mol.add_bond(11, 5, 11, BondOrder::Single);
+
+    mol
+}

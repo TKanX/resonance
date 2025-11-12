@@ -402,4 +402,12 @@ resonance_cases! {
         molecule: molecules::build_decalin,
         systems: [],
     },
+    abaxes_dithiacyclohexene => {
+        title: "ABAXES - 1,4-dithiacyclohex-2-ene",
+        tags: &["heterocycle", "sulfur", "partial-conjugation"],
+        molecule: molecules::build_abaxes,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3], bonds: || vec![0, 1, 2] },
+        ],
+    },
 }
