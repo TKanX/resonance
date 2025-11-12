@@ -494,4 +494,20 @@ resonance_cases! {
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
         ],
     },
+    adenosine_aromatic_input => {
+        title: "Adenosine (Aromatic Input)",
+        tags: &["biomolecule", "nucleoside", "heteroaromatic", "purine"],
+        molecule: molecules::build_adenosine_aromatic,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
+        ],
+    },
+    adenosine_kekule_input => {
+        title: "Adenosine (Kekulé Input)",
+        tags: &["biomolecule", "nucleoside", "heteroaromatic", "purine", "kekule"],
+        molecule: molecules::build_adenosine_kekule,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
+        ],
+    },
 }
