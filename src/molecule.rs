@@ -1,6 +1,6 @@
 //! Simple in-memory molecule for quick experiments and doctests.
 //!
-//! The `Molecule` type implements [`MoleculeGraph`](crate::traits::MoleculeGraph)
+//! The `Molecule` type implements [`MoleculeGraph`]
 //! so it can be fed directly into the perception pipeline. It is deliberately
 //! minimal and performs only basic validation on insertions.
 
