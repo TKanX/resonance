@@ -116,4 +116,12 @@ resonance_cases! {
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
         ],
     },
+    proline_zwitterion => {
+        title: "Proline Zwitterion",
+        tags: &["biomolecule", "zwitterion", "carboxylate", "cyclic"],
+        molecule: molecules::build_proline_zwitterion,
+        systems: [
+            { atoms: || vec![5, 6, 7], bonds: || vec![6, 7] },
+        ],
+    },
 }
