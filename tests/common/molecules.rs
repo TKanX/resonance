@@ -1937,3 +1937,115 @@ pub fn build_4_methylpyridine_kekule() -> TestMolecule {
 
     mol
 }
+
+pub fn build_acridine_aromatic() -> TestMolecule {
+    let mut mol = TestMolecule::new();
+
+    mol.add_atom(0, Element::C, 0);
+    mol.add_atom(1, Element::C, 0);
+    mol.add_atom(2, Element::C, 0);
+    mol.add_atom(3, Element::C, 0);
+    mol.add_atom(4, Element::C, 0);
+    mol.add_atom(5, Element::C, 0);
+    mol.add_atom(6, Element::C, 0);
+    mol.add_atom(7, Element::C, 0);
+    mol.add_atom(8, Element::C, 0);
+    mol.add_atom(9, Element::N, 0);
+    mol.add_atom(10, Element::C, 0);
+    mol.add_atom(11, Element::C, 0);
+    mol.add_atom(12, Element::C, 0);
+    mol.add_atom(13, Element::C, 0);
+    mol.add_atom(14, Element::H, 0);
+    mol.add_atom(15, Element::H, 0);
+    mol.add_atom(16, Element::H, 0);
+    mol.add_atom(17, Element::H, 0);
+    mol.add_atom(18, Element::H, 0);
+    mol.add_atom(19, Element::H, 0);
+    mol.add_atom(20, Element::H, 0);
+    mol.add_atom(21, Element::H, 0);
+    mol.add_atom(22, Element::H, 0);
+
+    mol.add_bond(0, 0, 1, BondOrder::Aromatic);
+    mol.add_bond(1, 1, 2, BondOrder::Aromatic);
+    mol.add_bond(2, 2, 3, BondOrder::Aromatic);
+    mol.add_bond(3, 3, 4, BondOrder::Aromatic);
+    mol.add_bond(4, 4, 5, BondOrder::Aromatic);
+    mol.add_bond(5, 5, 0, BondOrder::Aromatic);
+    mol.add_bond(6, 4, 6, BondOrder::Aromatic);
+    mol.add_bond(7, 6, 7, BondOrder::Aromatic);
+    mol.add_bond(8, 7, 8, BondOrder::Aromatic);
+    mol.add_bond(9, 8, 9, BondOrder::Aromatic);
+    mol.add_bond(10, 9, 5, BondOrder::Aromatic);
+    mol.add_bond(11, 9, 10, BondOrder::Aromatic);
+    mol.add_bond(12, 10, 11, BondOrder::Aromatic);
+    mol.add_bond(13, 11, 12, BondOrder::Aromatic);
+    mol.add_bond(14, 12, 13, BondOrder::Aromatic);
+    mol.add_bond(15, 13, 8, BondOrder::Aromatic);
+    mol.add_bond(16, 0, 14, BondOrder::Single);
+    mol.add_bond(17, 1, 15, BondOrder::Single);
+    mol.add_bond(18, 2, 16, BondOrder::Single);
+    mol.add_bond(19, 3, 17, BondOrder::Single);
+    mol.add_bond(20, 6, 18, BondOrder::Single);
+    mol.add_bond(21, 7, 19, BondOrder::Single);
+    mol.add_bond(22, 10, 20, BondOrder::Single);
+    mol.add_bond(23, 11, 21, BondOrder::Single);
+    mol.add_bond(24, 12, 22, BondOrder::Single);
+
+    mol
+}
+
+pub fn build_acridine_kekule() -> TestMolecule {
+    let mut mol = TestMolecule::new();
+
+    mol.add_atom(0, Element::C, 0);
+    mol.add_atom(1, Element::C, 0);
+    mol.add_atom(2, Element::C, 0);
+    mol.add_atom(3, Element::C, 0);
+    mol.add_atom(4, Element::C, 0);
+    mol.add_atom(5, Element::C, 0);
+    mol.add_atom(6, Element::C, 0);
+    mol.add_atom(7, Element::C, 0);
+    mol.add_atom(8, Element::C, 0);
+    mol.add_atom(9, Element::N, 0);
+    mol.add_atom(10, Element::C, 0);
+    mol.add_atom(11, Element::C, 0);
+    mol.add_atom(12, Element::C, 0);
+    mol.add_atom(13, Element::C, 0);
+    mol.add_atom(14, Element::H, 0);
+    mol.add_atom(15, Element::H, 0);
+    mol.add_atom(16, Element::H, 0);
+    mol.add_atom(17, Element::H, 0);
+    mol.add_atom(18, Element::H, 0);
+    mol.add_atom(19, Element::H, 0);
+    mol.add_atom(20, Element::H, 0);
+    mol.add_atom(21, Element::H, 0);
+    mol.add_atom(22, Element::H, 0);
+
+    mol.add_bond(0, 0, 1, BondOrder::Double);
+    mol.add_bond(1, 1, 2, BondOrder::Single);
+    mol.add_bond(2, 2, 3, BondOrder::Double);
+    mol.add_bond(3, 3, 4, BondOrder::Single);
+    mol.add_bond(4, 4, 5, BondOrder::Double);
+    mol.add_bond(5, 5, 0, BondOrder::Single);
+    mol.add_bond(6, 4, 6, BondOrder::Single);
+    mol.add_bond(7, 6, 7, BondOrder::Double);
+    mol.add_bond(8, 7, 8, BondOrder::Single);
+    mol.add_bond(9, 8, 9, BondOrder::Double);
+    mol.add_bond(10, 9, 5, BondOrder::Single);
+    mol.add_bond(11, 9, 10, BondOrder::Single);
+    mol.add_bond(12, 10, 11, BondOrder::Double);
+    mol.add_bond(13, 11, 12, BondOrder::Single);
+    mol.add_bond(14, 12, 13, BondOrder::Double);
+    mol.add_bond(15, 13, 8, BondOrder::Single);
+    mol.add_bond(16, 0, 14, BondOrder::Single);
+    mol.add_bond(17, 1, 15, BondOrder::Single);
+    mol.add_bond(18, 2, 16, BondOrder::Single);
+    mol.add_bond(19, 3, 17, BondOrder::Single);
+    mol.add_bond(20, 6, 18, BondOrder::Single);
+    mol.add_bond(21, 7, 19, BondOrder::Single);
+    mol.add_bond(22, 10, 20, BondOrder::Single);
+    mol.add_bond(23, 11, 21, BondOrder::Single);
+    mol.add_bond(24, 12, 22, BondOrder::Single);
+
+    mol
+}

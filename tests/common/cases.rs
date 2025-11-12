@@ -426,4 +426,20 @@ resonance_cases! {
             { atoms: || vec![0, 1, 2, 3, 4, 5], bonds: || vec![0, 1, 2, 3, 4, 5] },
         ],
     },
+    acridine_aromatic_input => {
+        title: "Acridine (Aromatic Input)",
+        tags: &["aromatic", "heterocycle", "fused"],
+        molecule: molecules::build_acridine_aromatic,
+        systems: [
+            { atoms: || (0..14).collect(), bonds: || (0..16).collect() },
+        ],
+    },
+    acridine_kekule_input => {
+        title: "Acridine (Kekulé Input)",
+        tags: &["aromatic", "heterocycle", "fused", "kekule"],
+        molecule: molecules::build_acridine_kekule,
+        systems: [
+            { atoms: || (0..14).collect(), bonds: || (0..16).collect() },
+        ],
+    },
 }
