@@ -524,4 +524,12 @@ resonance_cases! {
         molecule: molecules::build_choline_cation,
         systems: [],
     },
+    fullerene_c60_conjugated_sphere => {
+        title: "Fullerene C60 (Kekulé Input)",
+        tags: &["macrocyclic", "extended-conjugation", "polycyclic", "kekule"],
+        molecule: molecules::build_fullerene_c60,
+        systems: [
+            { atoms: || (0..60).collect(), bonds: || (0..90).collect() },
+        ],
+    },
 }

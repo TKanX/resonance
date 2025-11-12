@@ -1,5 +1,5 @@
 use super::graph::TestMolecule;
-use pauling::{BondOrder, Element};
+use pauling::{AtomId, BondId, BondOrder, Element};
 
 pub fn build_glycine_zwitterion() -> TestMolecule {
     let mut mol = TestMolecule::new();
@@ -2528,6 +2528,118 @@ pub fn build_choline_cation() -> TestMolecule {
     mol.add_bond(17, 5, 18, BondOrder::Single);
     mol.add_bond(18, 5, 19, BondOrder::Single);
     mol.add_bond(19, 6, 20, BondOrder::Single);
+
+    mol
+}
+
+pub fn build_fullerene_c60() -> TestMolecule {
+    let mut mol = TestMolecule::new();
+
+    for id in 0..60 {
+        mol.add_atom(id, Element::C, 0);
+    }
+
+    let bonds_data = [
+        (0, 1, 'D'),
+        (0, 4, 'S'),
+        (0, 8, 'S'),
+        (1, 2, 'S'),
+        (1, 11, 'S'),
+        (2, 3, 'D'),
+        (2, 14, 'S'),
+        (3, 4, 'S'),
+        (3, 17, 'S'),
+        (4, 5, 'D'),
+        (5, 6, 'S'),
+        (5, 19, 'S'),
+        (6, 7, 'D'),
+        (6, 21, 'S'),
+        (7, 8, 'S'),
+        (7, 24, 'S'),
+        (8, 9, 'D'),
+        (9, 10, 'S'),
+        (9, 25, 'S'),
+        (10, 11, 'D'),
+        (10, 28, 'S'),
+        (11, 12, 'S'),
+        (12, 13, 'D'),
+        (12, 29, 'S'),
+        (13, 14, 'S'),
+        (13, 32, 'S'),
+        (14, 15, 'D'),
+        (15, 16, 'S'),
+        (15, 33, 'S'),
+        (16, 17, 'D'),
+        (16, 36, 'S'),
+        (17, 18, 'S'),
+        (18, 19, 'D'),
+        (18, 37, 'S'),
+        (19, 20, 'S'),
+        (20, 21, 'D'),
+        (20, 39, 'S'),
+        (21, 22, 'S'),
+        (22, 23, 'D'),
+        (22, 41, 'S'),
+        (23, 24, 'S'),
+        (23, 43, 'S'),
+        (24, 25, 'D'),
+        (25, 26, 'S'),
+        (26, 27, 'D'),
+        (26, 44, 'S'),
+        (27, 28, 'S'),
+        (27, 46, 'S'),
+        (28, 29, 'D'),
+        (29, 30, 'S'),
+        (30, 31, 'D'),
+        (30, 47, 'S'),
+        (31, 32, 'S'),
+        (31, 49, 'S'),
+        (32, 33, 'D'),
+        (33, 34, 'S'),
+        (34, 35, 'D'),
+        (34, 50, 'S'),
+        (35, 36, 'S'),
+        (35, 52, 'S'),
+        (36, 37, 'D'),
+        (37, 38, 'S'),
+        (38, 39, 'D'),
+        (38, 53, 'S'),
+        (39, 40, 'S'),
+        (40, 41, 'D'),
+        (40, 54, 'S'),
+        (41, 42, 'S'),
+        (42, 43, 'D'),
+        (42, 56, 'S'),
+        (43, 44, 'S'),
+        (44, 45, 'D'),
+        (45, 46, 'S'),
+        (45, 57, 'S'),
+        (46, 47, 'D'),
+        (47, 48, 'S'),
+        (48, 49, 'D'),
+        (48, 58, 'S'),
+        (49, 50, 'S'),
+        (50, 51, 'D'),
+        (51, 52, 'S'),
+        (51, 59, 'S'),
+        (52, 53, 'D'),
+        (53, 54, 'S'),
+        (54, 55, 'D'),
+        (55, 56, 'S'),
+        (55, 59, 'S'),
+        (56, 57, 'D'),
+        (57, 58, 'S'),
+        (58, 59, 'D'),
+    ];
+
+    for (id, &(start, end, order_char)) in bonds_data.iter().enumerate() {
+        let order = if order_char == 'D' {
+            BondOrder::Double
+        } else {
+            BondOrder::Single
+        };
+        mol.add_bond(id as BondId, start, end, order);
+    }
 
     mol
 }
