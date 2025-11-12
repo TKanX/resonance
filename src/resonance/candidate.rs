@@ -1,7 +1,15 @@
+//! Determines which atoms can participate in conjugation and resonance.
+
 use crate::core::atom::Element;
 use crate::perception::ChemicalPerception;
 use crate::perception::Hybridization;
 
+/// Marks atoms as conjugation candidates based on hybridization and charge heuristics.
+///
+/// # Arguments
+///
+/// * `perception` - Fully populated perception snapshot that will receive the
+///   updated `is_conjugation_candidate` flags.
 pub fn determine(perception: &mut ChemicalPerception) {
     for atom in &mut perception.atoms {
         atom.is_conjugation_candidate =
@@ -21,6 +29,7 @@ pub fn determine(perception: &mut ChemicalPerception) {
     }
 }
 
+/// Checks whether a lone pair can conjugate into a neighbouring π system.
 fn is_lone_pair_candidate(perception: &ChemicalPerception, atom_idx: usize) -> bool {
     let atom = &perception.atoms[atom_idx];
 
@@ -35,6 +44,7 @@ fn is_lone_pair_candidate(perception: &ChemicalPerception, atom_idx: usize) -> b
     false
 }
 
+/// Detects carbocations or carbanions that delocalise through conjugation.
 fn is_charged_carbon_candidate(perception: &ChemicalPerception, atom_idx: usize) -> bool {
     let atom = &perception.atoms[atom_idx];
 
