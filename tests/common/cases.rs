@@ -352,4 +352,20 @@ resonance_cases! {
             { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
         ],
     },
+    deoxyadenosine_aromatic_input => {
+        title: "Deoxyadenosine (Aromatic Input)",
+        tags: &["biomolecule", "nucleoside", "aromatic", "purine"],
+        molecule: molecules::build_deoxyadenosine_aromatic,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
+        ],
+    },
+    deoxyadenosine_kekule_input => {
+        title: "Deoxyadenosine (Kekulé Input)",
+        tags: &["biomolecule", "nucleoside", "kekule", "purine"],
+        molecule: molecules::build_deoxyadenosine_kekule,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
+        ],
+    },
 }

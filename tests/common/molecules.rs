@@ -1436,3 +1436,147 @@ pub fn build_guanine_kekule() -> TestMolecule {
 
     mol
 }
+
+pub fn build_deoxyadenosine_aromatic() -> TestMolecule {
+    let mut mol = TestMolecule::new();
+
+    mol.add_atom(0, Element::N, 0);
+    mol.add_atom(1, Element::C, 0);
+    mol.add_atom(2, Element::N, 0);
+    mol.add_atom(3, Element::C, 0);
+    mol.add_atom(4, Element::C, 0);
+    mol.add_atom(5, Element::C, 0);
+    mol.add_atom(6, Element::N, 0);
+    mol.add_atom(7, Element::C, 0);
+    mol.add_atom(8, Element::N, 0);
+    mol.add_atom(9, Element::N, 0);
+    mol.add_atom(10, Element::H, 0);
+    mol.add_atom(11, Element::H, 0);
+    mol.add_atom(12, Element::H, 0);
+    mol.add_atom(13, Element::H, 0);
+    mol.add_atom(14, Element::C, 0);
+    mol.add_atom(15, Element::C, 0);
+    mol.add_atom(16, Element::C, 0);
+    mol.add_atom(17, Element::C, 0);
+    mol.add_atom(18, Element::C, 0);
+    mol.add_atom(19, Element::O, 0);
+    mol.add_atom(20, Element::O, 0);
+    mol.add_atom(21, Element::O, 0);
+    mol.add_atom(22, Element::H, 0);
+    mol.add_atom(23, Element::H, 0);
+    mol.add_atom(24, Element::H, 0);
+    mol.add_atom(25, Element::H, 0);
+    mol.add_atom(26, Element::H, 0);
+    mol.add_atom(27, Element::H, 0);
+    mol.add_atom(28, Element::H, 0);
+    mol.add_atom(29, Element::H, 0);
+    mol.add_atom(30, Element::H, 0);
+
+    mol.add_bond(0, 8, 3, BondOrder::Aromatic);
+    mol.add_bond(1, 3, 2, BondOrder::Aromatic);
+    mol.add_bond(2, 2, 1, BondOrder::Aromatic);
+    mol.add_bond(3, 1, 0, BondOrder::Aromatic);
+    mol.add_bond(4, 0, 5, BondOrder::Aromatic);
+    mol.add_bond(5, 5, 4, BondOrder::Aromatic);
+    mol.add_bond(6, 4, 3, BondOrder::Aromatic);
+    mol.add_bond(7, 4, 6, BondOrder::Aromatic);
+    mol.add_bond(8, 6, 7, BondOrder::Aromatic);
+    mol.add_bond(9, 7, 8, BondOrder::Aromatic);
+    mol.add_bond(10, 5, 9, BondOrder::Single);
+    mol.add_bond(11, 9, 12, BondOrder::Single);
+    mol.add_bond(12, 9, 13, BondOrder::Single);
+    mol.add_bond(13, 1, 10, BondOrder::Single);
+    mol.add_bond(14, 7, 11, BondOrder::Single);
+    mol.add_bond(15, 8, 14, BondOrder::Single);
+    mol.add_bond(16, 14, 15, BondOrder::Single);
+    mol.add_bond(17, 15, 16, BondOrder::Single);
+    mol.add_bond(18, 16, 17, BondOrder::Single);
+    mol.add_bond(19, 17, 19, BondOrder::Single);
+    mol.add_bond(20, 19, 14, BondOrder::Single);
+    mol.add_bond(21, 16, 20, BondOrder::Single);
+    mol.add_bond(22, 17, 18, BondOrder::Single);
+    mol.add_bond(23, 18, 21, BondOrder::Single);
+    mol.add_bond(24, 14, 22, BondOrder::Single);
+    mol.add_bond(25, 15, 23, BondOrder::Single);
+    mol.add_bond(26, 15, 24, BondOrder::Single);
+    mol.add_bond(27, 16, 25, BondOrder::Single);
+    mol.add_bond(28, 17, 26, BondOrder::Single);
+    mol.add_bond(29, 18, 27, BondOrder::Single);
+    mol.add_bond(30, 18, 28, BondOrder::Single);
+    mol.add_bond(31, 20, 29, BondOrder::Single);
+    mol.add_bond(32, 21, 30, BondOrder::Single);
+
+    mol
+}
+
+pub fn build_deoxyadenosine_kekule() -> TestMolecule {
+    let mut mol = TestMolecule::new();
+
+    mol.add_atom(0, Element::N, 0);
+    mol.add_atom(1, Element::C, 0);
+    mol.add_atom(2, Element::N, 0);
+    mol.add_atom(3, Element::C, 0);
+    mol.add_atom(4, Element::C, 0);
+    mol.add_atom(5, Element::C, 0);
+    mol.add_atom(6, Element::N, 0);
+    mol.add_atom(7, Element::C, 0);
+    mol.add_atom(8, Element::N, 0);
+    mol.add_atom(9, Element::N, 0);
+    mol.add_atom(10, Element::H, 0);
+    mol.add_atom(11, Element::H, 0);
+    mol.add_atom(12, Element::H, 0);
+    mol.add_atom(13, Element::H, 0);
+    mol.add_atom(14, Element::C, 0);
+    mol.add_atom(15, Element::C, 0);
+    mol.add_atom(16, Element::C, 0);
+    mol.add_atom(17, Element::C, 0);
+    mol.add_atom(18, Element::C, 0);
+    mol.add_atom(19, Element::O, 0);
+    mol.add_atom(20, Element::O, 0);
+    mol.add_atom(21, Element::O, 0);
+    mol.add_atom(22, Element::H, 0);
+    mol.add_atom(23, Element::H, 0);
+    mol.add_atom(24, Element::H, 0);
+    mol.add_atom(25, Element::H, 0);
+    mol.add_atom(26, Element::H, 0);
+    mol.add_atom(27, Element::H, 0);
+    mol.add_atom(28, Element::H, 0);
+    mol.add_atom(29, Element::H, 0);
+    mol.add_atom(30, Element::H, 0);
+
+    mol.add_bond(0, 8, 3, BondOrder::Single);
+    mol.add_bond(1, 3, 2, BondOrder::Double);
+    mol.add_bond(2, 2, 1, BondOrder::Single);
+    mol.add_bond(3, 1, 0, BondOrder::Double);
+    mol.add_bond(4, 0, 5, BondOrder::Single);
+    mol.add_bond(5, 5, 4, BondOrder::Double);
+    mol.add_bond(6, 4, 3, BondOrder::Single);
+    mol.add_bond(7, 4, 6, BondOrder::Single);
+    mol.add_bond(8, 6, 7, BondOrder::Double);
+    mol.add_bond(9, 7, 8, BondOrder::Single);
+    mol.add_bond(10, 5, 9, BondOrder::Single);
+    mol.add_bond(11, 9, 12, BondOrder::Single);
+    mol.add_bond(12, 9, 13, BondOrder::Single);
+    mol.add_bond(13, 1, 10, BondOrder::Single);
+    mol.add_bond(14, 7, 11, BondOrder::Single);
+    mol.add_bond(15, 8, 14, BondOrder::Single);
+    mol.add_bond(16, 14, 15, BondOrder::Single);
+    mol.add_bond(17, 15, 16, BondOrder::Single);
+    mol.add_bond(18, 16, 17, BondOrder::Single);
+    mol.add_bond(19, 17, 19, BondOrder::Single);
+    mol.add_bond(20, 19, 14, BondOrder::Single);
+    mol.add_bond(21, 16, 20, BondOrder::Single);
+    mol.add_bond(22, 17, 18, BondOrder::Single);
+    mol.add_bond(23, 18, 21, BondOrder::Single);
+    mol.add_bond(24, 14, 22, BondOrder::Single);
+    mol.add_bond(25, 15, 23, BondOrder::Single);
+    mol.add_bond(26, 15, 24, BondOrder::Single);
+    mol.add_bond(27, 16, 25, BondOrder::Single);
+    mol.add_bond(28, 17, 26, BondOrder::Single);
+    mol.add_bond(29, 18, 27, BondOrder::Single);
+    mol.add_bond(30, 18, 28, BondOrder::Single);
+    mol.add_bond(31, 20, 29, BondOrder::Single);
+    mol.add_bond(32, 21, 30, BondOrder::Single);
+
+    mol
+}
