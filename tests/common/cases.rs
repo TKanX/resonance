@@ -442,4 +442,10 @@ resonance_cases! {
             { atoms: || (0..14).collect(), bonds: || (0..16).collect() },
         ],
     },
+    phosphinane_saturated_heterocycle => {
+        title: "Phosphinane (Saturated Heterocycle)",
+        tags: &["saturated", "heterocycle", "phosphorus", "negative-case"],
+        molecule: molecules::build_phosphinane,
+        systems: [],
+    },
 }
