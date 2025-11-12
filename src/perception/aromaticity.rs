@@ -1,8 +1,11 @@
+//! Aromaticity perception driven by ring topology and electron counting rules.
+
 use crate::core::atom::Element;
 use crate::core::bond::BondOrder;
 use crate::perception::ChemicalPerception;
 use std::collections::{HashMap, HashSet};
 
+/// Marks aromatic atoms and bonds using explicit annotations and Hückel's rule.
 pub fn perceive(perception: &mut ChemicalPerception) {
     apply_explicit_aromaticity(perception);
     apply_topological_aromaticity(perception);
