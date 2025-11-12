@@ -174,4 +174,13 @@ resonance_cases! {
             { atoms: || vec![6, 7, 8], bonds: || vec![6, 7] },
         ],
     },
+    glutamate_zwitterion => {
+        title: "Glutamate Zwitterion",
+        tags: &["biomolecule", "zwitterion", "carboxylate"],
+        molecule: molecules::build_glutamate_zwitterion,
+        systems: [
+            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
+            { atoms: || vec![7, 8, 9], bonds: || vec![7, 8] },
+        ],
+    },
 }
