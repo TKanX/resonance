@@ -1613,3 +1613,54 @@ pub fn build_dinucleotide_backbone() -> TestMolecule {
 
     mol
 }
+
+pub fn build_cyclobutane_lactone_derivative() -> TestMolecule {
+    let mut mol = TestMolecule::new();
+
+    mol.add_atom(0, Element::C, 0);
+    mol.add_atom(1, Element::C, 0);
+    mol.add_atom(2, Element::C, 0);
+    mol.add_atom(3, Element::C, 0);
+    mol.add_atom(4, Element::C, 0);
+    mol.add_atom(5, Element::O, 0);
+    mol.add_atom(6, Element::O, 0);
+    mol.add_atom(7, Element::C, 0);
+    mol.add_atom(8, Element::O, 0);
+    mol.add_atom(9, Element::C, 0);
+    mol.add_atom(10, Element::O, 0);
+    mol.add_atom(11, Element::H, 0);
+    mol.add_atom(12, Element::H, 0);
+    mol.add_atom(13, Element::H, 0);
+    mol.add_atom(14, Element::H, 0);
+    mol.add_atom(15, Element::H, 0);
+    mol.add_atom(16, Element::H, 0);
+    mol.add_atom(17, Element::H, 0);
+    mol.add_atom(18, Element::H, 0);
+    mol.add_atom(19, Element::H, 0);
+    mol.add_atom(20, Element::H, 0);
+
+    mol.add_bond(0, 0, 1, BondOrder::Single);
+    mol.add_bond(1, 1, 2, BondOrder::Single);
+    mol.add_bond(2, 2, 3, BondOrder::Single);
+    mol.add_bond(3, 3, 0, BondOrder::Single);
+    mol.add_bond(4, 0, 4, BondOrder::Single);
+    mol.add_bond(5, 1, 8, BondOrder::Single);
+    mol.add_bond(6, 2, 10, BondOrder::Single);
+    mol.add_bond(7, 3, 7, BondOrder::Single);
+    mol.add_bond(8, 4, 5, BondOrder::Double);
+    mol.add_bond(9, 4, 6, BondOrder::Single);
+    mol.add_bond(10, 6, 7, BondOrder::Single);
+    mol.add_bond(11, 8, 9, BondOrder::Single);
+    mol.add_bond(12, 0, 11, BondOrder::Single);
+    mol.add_bond(13, 1, 12, BondOrder::Single);
+    mol.add_bond(14, 2, 13, BondOrder::Single);
+    mol.add_bond(15, 3, 14, BondOrder::Single);
+    mol.add_bond(16, 7, 15, BondOrder::Single);
+    mol.add_bond(17, 7, 16, BondOrder::Single);
+    mol.add_bond(18, 9, 17, BondOrder::Single);
+    mol.add_bond(19, 9, 18, BondOrder::Single);
+    mol.add_bond(20, 9, 19, BondOrder::Single);
+    mol.add_bond(21, 10, 20, BondOrder::Single);
+
+    mol
+}

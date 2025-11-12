@@ -376,4 +376,12 @@ resonance_cases! {
             { atoms: || vec![2, 3, 4], bonds: || vec![4, 5] },
         ],
     },
+    cyclobutane_lactone_derivative => {
+        title: "Cyclobutane Lactone Derivative (ACBUOL)",
+        tags: &["lactone", "ester", "saturated-ring"],
+        molecule: molecules::build_cyclobutane_lactone_derivative,
+        systems: [
+            { atoms: || vec![4, 5, 6], bonds: || vec![8, 9] },
+        ],
+    },
 }
