@@ -1,18 +1,27 @@
+//! Atomic state perception including valence, lone pairs, and hybridization.
+
 use crate::perception::{ChemicalPerception, PerceivedAtom};
 
+/// Hybridization states assigned to atoms during perception.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Hybridization {
+    /// Linear `sp` hybridization (steric number 2).
     SP,
+    /// Trigonal `sp2` hybridization (steric number 3).
     SP2,
+    /// Tetrahedral `sp3` hybridization (steric number 4).
     SP3,
+    /// Hybridization is unknown or outside the supported heuristics.
     Unknown,
 }
 
+/// Computes valence, lone pairs, and hybridization for each perceived atom.
 pub fn perceive(perception: &mut ChemicalPerception) {
     compute_valence(perception);
     perceive_hybridization(perception);
 }
 
+/// Updates `total_valence` on every perceived atom.
 fn compute_valence(perception: &mut ChemicalPerception) {
     for atom in &mut perception.atoms {
         atom.total_valence = 0;
@@ -35,6 +44,7 @@ fn compute_valence(perception: &mut ChemicalPerception) {
     }
 }
 
+/// Determines hybridization states and lone pair counts using heuristic rules.
 fn perceive_hybridization(perception: &mut ChemicalPerception) {
     let lone_pairs: Vec<u8> = perception.atoms.iter().map(estimate_lone_pairs).collect();
 
@@ -78,6 +88,7 @@ fn perceive_hybridization(perception: &mut ChemicalPerception) {
     }
 }
 
+/// Estimates lone pair count from valence electron bookkeeping.
 fn estimate_lone_pairs(atom: &PerceivedAtom) -> u8 {
     let valence_electrons = match atom.element.valence_electrons() {
         Some(e) => e as i16,
