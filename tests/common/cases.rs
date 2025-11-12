@@ -336,4 +336,20 @@ resonance_cases! {
             { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
         ],
     },
+    guanine_aromatic_input => {
+        title: "Guanine (Aromatic Input)",
+        tags: &["biomolecule", "nucleobase", "heterocycle", "fused"],
+        molecule: molecules::build_guanine_aromatic,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
+        ],
+    },
+    guanine_kekule_input => {
+        title: "Guanine (Kekulé Input)",
+        tags: &["biomolecule", "nucleobase", "heterocycle", "fused", "kekule"],
+        molecule: molecules::build_guanine_kekule,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
+        ],
+    },
 }
