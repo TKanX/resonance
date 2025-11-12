@@ -396,4 +396,10 @@ resonance_cases! {
         molecule: molecules::build_adamantane,
         systems: [],
     },
+    decalin_saturated_fused_bicycle => {
+        title: "Decalin (Saturated Fused Bicyclic Alkane)",
+        tags: &["saturated", "fused", "negative-case", "alkane"],
+        molecule: molecules::build_decalin,
+        systems: [],
+    },
 }

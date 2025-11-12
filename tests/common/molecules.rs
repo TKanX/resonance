@@ -1768,3 +1768,68 @@ pub fn build_adamantane() -> TestMolecule {
 
     mol
 }
+
+pub fn build_decalin() -> TestMolecule {
+    let mut mol = TestMolecule::new();
+
+    mol.add_atom(0, Element::C, 0);
+    mol.add_atom(1, Element::C, 0);
+    mol.add_atom(2, Element::C, 0);
+    mol.add_atom(3, Element::C, 0);
+    mol.add_atom(4, Element::C, 0);
+    mol.add_atom(5, Element::C, 0);
+    mol.add_atom(6, Element::C, 0);
+    mol.add_atom(7, Element::C, 0);
+    mol.add_atom(8, Element::C, 0);
+    mol.add_atom(9, Element::C, 0);
+    mol.add_atom(10, Element::H, 0);
+    mol.add_atom(11, Element::H, 0);
+    mol.add_atom(12, Element::H, 0);
+    mol.add_atom(13, Element::H, 0);
+    mol.add_atom(14, Element::H, 0);
+    mol.add_atom(15, Element::H, 0);
+    mol.add_atom(16, Element::H, 0);
+    mol.add_atom(17, Element::H, 0);
+    mol.add_atom(18, Element::H, 0);
+    mol.add_atom(19, Element::H, 0);
+    mol.add_atom(20, Element::H, 0);
+    mol.add_atom(21, Element::H, 0);
+    mol.add_atom(22, Element::H, 0);
+    mol.add_atom(23, Element::H, 0);
+    mol.add_atom(24, Element::H, 0);
+    mol.add_atom(25, Element::H, 0);
+    mol.add_atom(26, Element::H, 0);
+    mol.add_atom(27, Element::H, 0);
+
+    mol.add_bond(0, 0, 1, BondOrder::Single);
+    mol.add_bond(1, 1, 2, BondOrder::Single);
+    mol.add_bond(2, 2, 3, BondOrder::Single);
+    mol.add_bond(3, 3, 4, BondOrder::Single);
+    mol.add_bond(4, 4, 5, BondOrder::Single);
+    mol.add_bond(5, 5, 0, BondOrder::Single);
+    mol.add_bond(6, 5, 6, BondOrder::Single);
+    mol.add_bond(7, 6, 7, BondOrder::Single);
+    mol.add_bond(8, 7, 8, BondOrder::Single);
+    mol.add_bond(9, 8, 9, BondOrder::Single);
+    mol.add_bond(10, 9, 0, BondOrder::Single);
+    mol.add_bond(11, 0, 10, BondOrder::Single);
+    mol.add_bond(12, 1, 11, BondOrder::Single);
+    mol.add_bond(13, 1, 12, BondOrder::Single);
+    mol.add_bond(14, 2, 13, BondOrder::Single);
+    mol.add_bond(15, 2, 14, BondOrder::Single);
+    mol.add_bond(16, 3, 15, BondOrder::Single);
+    mol.add_bond(17, 3, 16, BondOrder::Single);
+    mol.add_bond(18, 4, 17, BondOrder::Single);
+    mol.add_bond(19, 4, 18, BondOrder::Single);
+    mol.add_bond(20, 5, 19, BondOrder::Single);
+    mol.add_bond(21, 6, 20, BondOrder::Single);
+    mol.add_bond(22, 6, 21, BondOrder::Single);
+    mol.add_bond(23, 7, 22, BondOrder::Single);
+    mol.add_bond(24, 7, 23, BondOrder::Single);
+    mol.add_bond(25, 8, 24, BondOrder::Single);
+    mol.add_bond(26, 8, 25, BondOrder::Single);
+    mol.add_bond(27, 9, 26, BondOrder::Single);
+    mol.add_bond(28, 9, 27, BondOrder::Single);
+
+    mol
+}
