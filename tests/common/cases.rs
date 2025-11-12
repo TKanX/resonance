@@ -1,0 +1,76 @@
+#![allow(non_upper_case_globals)]
+
+mod graph;
+mod molecules;
+
+pub use graph::TestMolecule;
+use pauling::{AtomId, BondId, ResonanceSystem};
+
+pub struct ResonanceSystemExpectation {
+    pub atoms: fn() -> Vec<AtomId>,
+    pub bonds: fn() -> Vec<BondId>,
+}
+
+impl ResonanceSystemExpectation {
+    pub fn to_system(&self) -> ResonanceSystem {
+        let atoms = (self.atoms)();
+        let bonds = (self.bonds)();
+        ResonanceSystem::new(atoms, bonds)
+    }
+}
+
+pub struct ResonanceCase {
+    pub slug: &'static str,
+    pub title: &'static str,
+    pub tags: &'static [&'static str],
+    pub build: fn() -> TestMolecule,
+    pub expected: &'static [ResonanceSystemExpectation],
+}
+
+impl ResonanceCase {
+    pub fn expected_systems(&self) -> Vec<ResonanceSystem> {
+        self.expected
+            .iter()
+            .map(ResonanceSystemExpectation::to_system)
+            .collect()
+    }
+}
+
+macro_rules! resonance_cases {
+    ( $( $name:ident => {
+            title: $title:expr,
+            tags: $tags:expr,
+            molecule: $builder:path,
+            systems: [ $( { atoms: $atoms:expr, bonds: $bonds:expr } ),* $(,)? ],
+        }
+    ),* $(,)? ) => {
+        $(
+            pub const $name: ResonanceCase = ResonanceCase {
+                slug: stringify!($name),
+                title: $title,
+                tags: $tags,
+                build: $builder,
+                expected: &[
+                    $(
+                        ResonanceSystemExpectation {
+                            atoms: $atoms,
+                            bonds: $bonds,
+                        }
+                    ),*
+                ],
+            };
+        )*
+
+        pub const ALL_CASES: &[ResonanceCase] = &[
+            $( $name ),*
+        ];
+
+        macro_rules! for_each_resonance_case {
+            ($macro:ident) => {
+                $(
+                    $macro!($name);
+                )*
+            };
+        }
+    };
+}
