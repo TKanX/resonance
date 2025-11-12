@@ -518,4 +518,10 @@ resonance_cases! {
             { atoms: || vec![0, 1, 2], bonds: || vec![0, 1] },
         ],
     },
+    choline_cation_saturated_salt => {
+        title: "Choline Cation (Saturated Quaternary Ammonium Salt)",
+        tags: &["saturated", "cation", "negative-case", "biomolecule"],
+        molecule: molecules::build_choline_cation,
+        systems: [],
+    },
 }
