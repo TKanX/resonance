@@ -1,14 +1,33 @@
+//! Core atom primitives shared across the perception pipeline.
+//!
+//! This module provides a canonical `AtomId` type alongside the
+//! `Element` enumeration, which captures the subset of the periodic table
+//! supported by the Pauling perception pipeline.
+
+/// Unique identifier for an atom inside a molecular graph.
 pub type AtomId = usize;
 
 macro_rules! define_elements {
     ($($name:ident = $value:literal),* $(,)?) => {
+        /// Chemical element recognised by the perception pipeline.
         #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
         #[repr(u8)]
         pub enum Element {
-            $($name = $value),*
+            $(
+                #[doc = concat!(
+                    "Chemical element with atomic number ",
+                    stringify!($value),
+                    "."
+                )]
+                $name = $value
+            ),*
         }
 
         impl Element {
+            /// Creates an [`Element`] from its atomic number.
+            ///
+            /// Returns `None` for elements that are not currently supported by the
+            /// perception pipeline.
             pub fn from_atomic_number(atomic_number: u8) -> Option<Self> {
                 match atomic_number {
                     $($value => Some(Element::$name),)*
@@ -16,10 +35,16 @@ macro_rules! define_elements {
                 }
             }
 
+            /// Returns the atomic number associated with this element.
             pub fn atomic_number(self) -> u8 {
                 self as u8
             }
 
+            /// Returns the number of valence electrons used for octet heuristics.
+            ///
+            /// Only main-group elements with well-defined valence configurations are
+            /// currently covered. Transition metals return `None` because their
+            /// chemistry is outside the scope of the pipeline.
             pub fn valence_electrons(self) -> Option<u8> {
                 use Element::*;
                 let electrons = match self {
@@ -37,6 +62,10 @@ macro_rules! define_elements {
                 Some(electrons)
             }
 
+            /// Checks whether the element frequently participates in conjugation.
+            ///
+            /// The perception pipeline treats these elements as candidates for
+            /// delocalisation heuristics when evaluating aromaticity and resonance.
             pub fn is_common_conjugation_element(self) -> bool {
                 matches!(
                     self,
@@ -50,6 +79,10 @@ macro_rules! define_elements {
         impl std::str::FromStr for Element {
             type Err = String;
 
+            /// Parses an element from an atomic number or a case-insensitive symbol.
+            ///
+            /// Strings that cannot be mapped to a supported element produce an
+            /// error message describing the invalid input.
             fn from_str(s: &str) -> Result<Self, Self::Err> {
                 let s = s.trim();
                 // Try parse as atomic number first
