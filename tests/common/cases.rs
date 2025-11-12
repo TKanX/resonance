@@ -320,4 +320,20 @@ resonance_cases! {
             { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
         ],
     },
+    adenine_aromatic_input => {
+        title: "Adenine (Aromatic Input)",
+        tags: &["biomolecule", "nucleobase", "heterocycle", "aromatic"],
+        molecule: molecules::build_adenine_aromatic,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
+        ],
+    },
+    adenine_kekule_input => {
+        title: "Adenine (Kekulé Input)",
+        tags: &["biomolecule", "nucleobase", "heterocycle", "kekule"],
+        molecule: molecules::build_adenine_kekule,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
+        ],
+    },
 }
