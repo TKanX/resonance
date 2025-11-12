@@ -376,12 +376,18 @@ resonance_cases! {
             { atoms: || vec![2, 3, 4], bonds: || vec![4, 5] },
         ],
     },
-    cyclobutane_lactone_derivative => {
-        title: "Cyclobutane Lactone Derivative (ACBUOL)",
-        tags: &["lactone", "ester", "saturated-ring"],
-        molecule: molecules::build_cyclobutane_lactone_derivative,
+    acbuol_isolated_lactone => {
+        title: "ACBUOL - Isolated Lactone Resonance",
+        tags: &["lactone", "polycyclic", "isolated-resonance"],
+        molecule: molecules::build_acbuol,
         systems: [
             { atoms: || vec![4, 5, 6], bonds: || vec![8, 9] },
         ],
+    },
+    afurpo10_cage_ether => {
+        title: "AFURPO10 - Saturated Cage Ether",
+        tags: &["saturated", "polycyclic", "negative-control"],
+        molecule: molecules::build_afurpo10,
+        systems: [],
     },
 }
