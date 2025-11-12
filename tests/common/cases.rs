@@ -74,3 +74,14 @@ macro_rules! resonance_cases {
         }
     };
 }
+
+resonance_cases! {
+    glycine_zwitterion => {
+        title: "Glycine Zwitterion",
+        tags: &["biomolecule", "zwitterion", "carboxylate"],
+        molecule: molecules::build_glycine_zwitterion,
+        systems: [
+            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
+        ],
+    },
+}
