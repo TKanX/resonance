@@ -390,4 +390,10 @@ resonance_cases! {
         molecule: molecules::build_afurpo10,
         systems: [],
     },
+    adamantane_saturated_polycycle => {
+        title: "Adamantane (Saturated Polycyclic Alkane)",
+        tags: &["saturated", "polycyclic", "negative-case", "alkane"],
+        molecule: molecules::build_adamantane,
+        systems: [],
+    },
 }
