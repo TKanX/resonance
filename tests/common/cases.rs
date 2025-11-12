@@ -304,4 +304,20 @@ resonance_cases! {
             { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
         ],
     },
+    cytosine_aromatic_input => {
+        title: "Cytosine (Aromatic Input)",
+        tags: &["biomolecule", "nucleobase", "heterocycle"],
+        molecule: molecules::build_cytosine_aromatic,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
+        ],
+    },
+    cytosine_kekule_input => {
+        title: "Cytosine (Kekulé Input)",
+        tags: &["biomolecule", "nucleobase", "heterocycle", "kekule"],
+        molecule: molecules::build_cytosine_kekule,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
+        ],
+    },
 }
