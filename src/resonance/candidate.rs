@@ -72,14 +72,14 @@ fn promote_lone_pair_donors(perception: &mut ChemicalPerception) {
         let mut promote = false;
 
         for &(neighbor_idx, _) in &perception.adjacency[atom_idx] {
-            let neighbour = &perception.atoms[neighbor_idx];
-            let neighbour_roles = neighbour.conjugation_roles;
+            let neighbor = &perception.atoms[neighbor_idx];
+            let neighbor_roles = neighbor.conjugation_roles;
 
-            if neighbour_roles.is_empty() {
+            if neighbor_roles.is_empty() {
                 continue;
             }
 
-            if neighbour_roles.contains(ConjugationRole::HYPERVALENT_BRIDGE) {
+            if neighbor_roles.contains(ConjugationRole::HYPERVALENT_BRIDGE) {
                 if atom.formal_charge < 0 {
                     promote = true;
                     break;
@@ -178,10 +178,10 @@ fn is_hypervalent_bridge(perception: &ChemicalPerception, atom_idx: usize) -> bo
                 has_pi_partner = true;
             }
         } else {
-            let neighbour = &perception.atoms[neighbor_idx];
-            if neighbour.lone_pairs > 0
-                || neighbour.formal_charge < 0
-                || neighbour.element.is_common_conjugation_element()
+            let neighbor = &perception.atoms[neighbor_idx];
+            if neighbor.lone_pairs > 0
+                || neighbor.formal_charge < 0
+                || neighbor.element.is_common_conjugation_element()
             {
                 has_sigma_partner = true;
             }

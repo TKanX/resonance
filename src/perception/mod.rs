@@ -29,7 +29,7 @@ impl ConjugationRole {
     pub const NONE: Self = Self(0);
     /// Atom intrinsically carries a π system (sp/sp²/aromatic).
     pub const PI_CARRIER: Self = Self(1);
-    /// Atom can donate a lone pair into a neighbouring π system.
+    /// Atom can donate a lone pair into a neighboring π system.
     pub const LONE_PAIR_DONOR: Self = Self(1 << 1);
     /// Formal charge promotes conjugation (allylic cation/anion, etc.).
     pub const CHARGE_MEDIATOR: Self = Self(1 << 2);
