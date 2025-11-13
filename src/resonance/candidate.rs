@@ -1,52 +1,194 @@
+//! Determines which atoms can participate in conjugation and resonance.
+
 use crate::core::atom::Element;
-use crate::perception::ChemicalPerception;
-use crate::perception::Hybridization;
+use crate::core::bond::BondOrder;
+use crate::perception::{ChemicalPerception, ConjugationRole, Hybridization};
 
+/// Marks atoms as conjugation candidates based on hybridization, charge, and
+/// hypervalent heuristics.
+///
+/// # Arguments
+///
+/// * `perception` - Fully populated perception snapshot that will receive the
+///   updated `is_conjugation_candidate` flags.
 pub fn determine(perception: &mut ChemicalPerception) {
-    for atom in &mut perception.atoms {
-        atom.is_conjugation_candidate =
-            matches!(atom.hybridization, Hybridization::SP | Hybridization::SP2);
-    }
+    reset_conjugation_state(perception);
+    mark_hypervalent_bridges(perception);
+    mark_intrinsic_pi_carriers(perception);
+    promote_lone_pair_donors(perception);
+    promote_charged_carbons(perception);
+    finalize_candidate_flags(perception);
+}
 
+/// Resets all conjugation-related flags on atoms.
+fn reset_conjugation_state(perception: &mut ChemicalPerception) {
+    for atom in &mut perception.atoms {
+        atom.is_conjugation_candidate = false;
+        atom.conjugation_roles = ConjugationRole::NONE;
+    }
+}
+
+/// Marks atoms that are intrinsic pi carriers, such as sp2/sp carbons and
+/// aromatic atoms.
+fn mark_intrinsic_pi_carriers(perception: &mut ChemicalPerception) {
     for atom_idx in 0..perception.atoms.len() {
-        if perception.atoms[atom_idx].is_conjugation_candidate {
+        if should_skip_intrinsic_pi(perception, atom_idx) {
             continue;
         }
 
-        if is_lone_pair_candidate(perception, atom_idx)
-            || is_charged_carbon_candidate(perception, atom_idx)
+        if perception.atoms[atom_idx].is_aromatic
+            || matches!(
+                perception.atoms[atom_idx].hybridization,
+                Hybridization::SP | Hybridization::SP2
+            )
         {
-            perception.atoms[atom_idx].is_conjugation_candidate = true;
+            perception.atoms[atom_idx]
+                .conjugation_roles
+                .insert(ConjugationRole::PI_CARRIER);
         }
     }
 }
 
-fn is_lone_pair_candidate(perception: &ChemicalPerception, atom_idx: usize) -> bool {
+/// Identifies hypervalent bridge atoms and marks them accordingly.
+fn mark_hypervalent_bridges(perception: &mut ChemicalPerception) {
+    for atom_idx in 0..perception.atoms.len() {
+        if is_hypervalent_bridge(perception, atom_idx) {
+            perception.atoms[atom_idx]
+                .conjugation_roles
+                .insert(ConjugationRole::HYPERVALENT_BRIDGE);
+        }
+    }
+}
+
+/// Promotes atoms with lone pairs that are adjacent to conjugation-capable
+/// atoms to conjugation candidates.
+fn promote_lone_pair_donors(perception: &mut ChemicalPerception) {
+    for atom_idx in 0..perception.atoms.len() {
+        let atom = &perception.atoms[atom_idx];
+        if atom.lone_pairs == 0 {
+            continue;
+        }
+
+        let mut promote = false;
+
+        for &(neighbor_idx, _) in &perception.adjacency[atom_idx] {
+            let neighbor = &perception.atoms[neighbor_idx];
+            let neighbor_roles = neighbor.conjugation_roles;
+
+            if neighbor_roles.is_empty() {
+                continue;
+            }
+
+            if neighbor_roles.contains(ConjugationRole::HYPERVALENT_BRIDGE) {
+                if atom.formal_charge < 0 {
+                    promote = true;
+                    break;
+                }
+                continue;
+            }
+
+            promote = true;
+            break;
+        }
+
+        if !promote {
+            continue;
+        }
+
+        if atom.element == Element::O && atom.formal_charge == 0 && atom.total_degree > 1 {
+            continue;
+        }
+
+        perception.atoms[atom_idx]
+            .conjugation_roles
+            .insert(ConjugationRole::LONE_PAIR_DONOR);
+    }
+}
+
+/// Promotes charged carbons to conjugation candidates based on their
+/// formal charge and degree.
+fn promote_charged_carbons(perception: &mut ChemicalPerception) {
+    for atom in &mut perception.atoms {
+        if atom.element != Element::C {
+            continue;
+        }
+
+        let is_delocalised =
+            (atom.formal_charge == 1 && atom.total_degree == 3) || atom.formal_charge == -1;
+
+        if is_delocalised {
+            atom.conjugation_roles
+                .insert(ConjugationRole::CHARGE_MEDIATOR);
+        }
+    }
+}
+
+/// Finalizes the candidate flags based on the assigned conjugation roles.
+fn finalize_candidate_flags(perception: &mut ChemicalPerception) {
+    for atom in &mut perception.atoms {
+        atom.is_conjugation_candidate = !atom.conjugation_roles.is_empty();
+    }
+}
+
+/// Determines if an atom should be skipped when marking intrinsic pi carriers.
+fn should_skip_intrinsic_pi(perception: &ChemicalPerception, atom_idx: usize) -> bool {
     let atom = &perception.atoms[atom_idx];
 
-    if atom.lone_pairs > 0 {
-        for &(neighbor_idx, _) in &perception.adjacency[atom_idx] {
-            if perception.atoms[neighbor_idx].is_conjugation_candidate {
-                return true;
-            }
-        }
+    if atom.element == Element::O && atom.formal_charge == 0 && atom.total_degree > 1 {
+        return perception.adjacency[atom_idx]
+            .iter()
+            .any(|&(neighbor_idx, _)| {
+                perception.atoms[neighbor_idx]
+                    .conjugation_roles
+                    .contains(ConjugationRole::HYPERVALENT_BRIDGE)
+            });
     }
 
     false
 }
 
-fn is_charged_carbon_candidate(perception: &ChemicalPerception, atom_idx: usize) -> bool {
+/// Determines if an atom is a hypervalent bridge based on its element,
+/// valence, and bonding environment.
+fn is_hypervalent_bridge(perception: &ChemicalPerception, atom_idx: usize) -> bool {
+    use Element::{Br, Cl, I, P, S};
+
     let atom = &perception.atoms[atom_idx];
 
-    if atom.element != Element::C {
+    if !matches!(atom.element, P | S | Cl | Br | I) {
         return false;
     }
 
-    match atom.formal_charge {
-        1 if atom.total_degree == 3 => true,
-        -1 => true,
-        _ => false,
+    if atom.total_valence <= 4 {
+        return false;
     }
+
+    let mut has_pi_partner = false;
+    let mut has_sigma_partner = false;
+
+    for &(neighbor_idx, bond_id) in &perception.adjacency[atom_idx] {
+        let bond_idx = perception.bond_id_to_index[&bond_id];
+        let bond = &perception.bonds[bond_idx];
+        let effective_order = bond.kekule_order.unwrap_or(bond.order);
+
+        if matches!(effective_order, BondOrder::Double | BondOrder::Triple) {
+            if perception.atoms[neighbor_idx]
+                .element
+                .is_common_conjugation_element()
+            {
+                has_pi_partner = true;
+            }
+        } else {
+            let neighbor = &perception.atoms[neighbor_idx];
+            if neighbor.lone_pairs > 0
+                || neighbor.formal_charge < 0
+                || neighbor.element.is_common_conjugation_element()
+            {
+                has_sigma_partner = true;
+            }
+        }
+    }
+
+    has_pi_partner && has_sigma_partner
 }
 
 #[cfg(test)]
@@ -55,7 +197,7 @@ mod tests {
     use crate::core::atom::{AtomId, Element};
     use crate::core::bond::BondOrder;
     use crate::molecule::Molecule;
-    use crate::perception::ChemicalPerception;
+    use crate::perception::{ChemicalPerception, ConjugationRole};
 
     fn index(perception: &ChemicalPerception, atom_id: AtomId) -> usize {
         perception.atom_id_to_index[&atom_id]
@@ -277,6 +419,43 @@ mod tests {
         (perception, oxygen)
     }
 
+    fn build_phosphate_fragment() -> (ChemicalPerception, AtomId, AtomId, AtomId) {
+        let mut molecule = Molecule::new();
+        let phosphorus = molecule.add_atom(Element::P, 0);
+        let _oxo = molecule.add_atom(Element::O, 0);
+        molecule
+            .add_bond(phosphorus, _oxo, BondOrder::Double)
+            .expect("P=O");
+
+        let anionic_oxygen = molecule.add_atom(Element::O, -1);
+        molecule
+            .add_bond(phosphorus, anionic_oxygen, BondOrder::Single)
+            .expect("P-O-");
+
+        let bridging_oxygen = molecule.add_atom(Element::O, 0);
+        let carbon_stub = molecule.add_atom(Element::C, 0);
+        molecule
+            .add_bond(phosphorus, bridging_oxygen, BondOrder::Single)
+            .expect("P-O (ester)");
+        molecule
+            .add_bond(bridging_oxygen, carbon_stub, BondOrder::Single)
+            .expect("C-O stub");
+
+        let _solvent_oxygen = molecule.add_atom(Element::O, 0);
+        molecule
+            .add_bond(phosphorus, _solvent_oxygen, BondOrder::Single)
+            .expect("P-O (solvent)");
+
+        let hydrogen = molecule.add_atom(Element::H, 0);
+        molecule
+            .add_bond(carbon_stub, hydrogen, BondOrder::Single)
+            .expect("C-H");
+
+        let mut perception = ChemicalPerception::from_graph(&molecule).expect("perception");
+        determine(&mut perception);
+        (perception, phosphorus, anionic_oxygen, bridging_oxygen)
+    }
+
     #[test]
     fn sp2_carbons_from_multiple_bonds_are_candidates() {
         let (perception, carbons) = build_ethene();
@@ -344,6 +523,33 @@ mod tests {
         assert!(
             !perception.atoms[idx].is_conjugation_candidate,
             "dimethyl ether oxygen"
+        );
+    }
+
+    #[test]
+    fn hypervalent_phosphate_promotes_bridge_and_neighbors() {
+        let (perception, phosphorus, anionic_oxygen, bridging_oxygen) = build_phosphate_fragment();
+        let p_idx = index(&perception, phosphorus);
+        let anionic_idx = index(&perception, anionic_oxygen);
+        let bridging_idx = index(&perception, bridging_oxygen);
+
+        assert!(
+            perception.atoms[p_idx]
+                .conjugation_roles
+                .contains(ConjugationRole::HYPERVALENT_BRIDGE),
+            "phosphorus should register as a hypervalent bridge"
+        );
+        assert!(perception.atoms[p_idx].is_conjugation_candidate);
+        assert!(perception.atoms[anionic_idx].is_conjugation_candidate);
+        let bridging_roles = perception.atoms[bridging_idx].conjugation_roles;
+        assert!(
+            bridging_roles.is_empty(),
+            "bridging oxygen roles: {:?}",
+            bridging_roles
+        );
+        assert!(
+            !perception.atoms[bridging_idx].is_conjugation_candidate,
+            "bridging oxygen should remain outside the conjugated core"
         );
     }
 }

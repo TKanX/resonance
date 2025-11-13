@@ -1,8 +1,20 @@
+//! Groups conjugated atoms and bonds into discrete resonance systems.
+
 use super::system::ResonanceSystem;
 use crate::core::bond::BondOrder;
 use crate::perception::ChemicalPerception;
 use std::collections::{HashSet, VecDeque};
 
+/// Traverses the perceived molecule and returns all resonance systems.
+///
+/// # Arguments
+///
+/// * `perception` - Complete perception snapshot containing conjugation flags
+///   and Kekulé metadata.
+///
+/// # Returns
+///
+/// A vector of [`ResonanceSystem`] values sorted by bond identifiers.
 pub fn find_systems(perception: &ChemicalPerception) -> Vec<ResonanceSystem> {
     if perception.bonds.is_empty() {
         return Vec::new();
@@ -12,6 +24,7 @@ pub fn find_systems(perception: &ChemicalPerception) -> Vec<ResonanceSystem> {
     group_systems(perception, &conjugated_bond_indices)
 }
 
+/// Seeds conjugated bonds and grows them across conjugation candidates.
 fn find_and_expand_conjugated_bonds(perception: &ChemicalPerception) -> HashSet<usize> {
     let mut conjugated: HashSet<usize> = HashSet::new();
     let mut frontier: VecDeque<usize> = VecDeque::new();
@@ -57,6 +70,7 @@ fn find_and_expand_conjugated_bonds(perception: &ChemicalPerception) -> HashSet<
     conjugated
 }
 
+/// Groups conjugated bonds into connected components and records their atoms.
 fn group_systems(
     perception: &ChemicalPerception,
     conjugated_bond_indices: &HashSet<usize>,
@@ -112,7 +126,9 @@ mod tests {
     use super::*;
     use crate::core::atom::{AtomId, Element};
     use crate::core::bond::{BondId, BondOrder};
-    use crate::perception::{ChemicalPerception, Hybridization, PerceivedAtom, PerceivedBond};
+    use crate::perception::{
+        ChemicalPerception, ConjugationRole, Hybridization, PerceivedAtom, PerceivedBond,
+    };
     use std::collections::HashMap;
 
     #[derive(Clone, Copy)]
@@ -212,6 +228,11 @@ mod tests {
                 hybridization,
                 is_conjugation_candidate: atom.is_candidate,
                 lone_pairs: 0,
+                conjugation_roles: if atom.is_candidate {
+                    ConjugationRole::PI_CARRIER
+                } else {
+                    ConjugationRole::NONE
+                },
             });
             atom_id_to_index.insert(idx, idx);
         }

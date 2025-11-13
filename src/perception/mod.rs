@@ -1,3 +1,8 @@
+//! Internal perception pipeline that enriches molecular graphs with chemical metadata.
+//!
+//! The module orchestrates ring perception, aromaticity detection, Kekulé
+//! assignments, atomic state inference, and resonance candidate identification.
+
 use crate::core::atom::{AtomId, Element};
 use crate::core::bond::{BondId, BondOrder};
 use crate::errors::PerceptionError;
@@ -5,29 +10,97 @@ use crate::graph::traits::{AtomView, BondView, MoleculeGraph};
 use crate::perception::ring::RingInfo;
 use crate::resonance;
 use std::collections::{HashMap, HashSet};
+use std::ops::{BitOr, BitOrAssign};
 
 mod aromaticity;
 mod kekulize;
 mod ring;
 mod state;
 
+/// Hybridization states assigned to perceived atoms.
 pub use state::Hybridization;
 
+/// Bitflag-style roles that justify conjugation participation.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ConjugationRole(u8);
+
+impl ConjugationRole {
+    /// Empty role set.
+    pub const NONE: Self = Self(0);
+    /// Atom intrinsically carries a π system (sp/sp²/aromatic).
+    pub const PI_CARRIER: Self = Self(1);
+    /// Atom can donate a lone pair into a neighboring π system.
+    pub const LONE_PAIR_DONOR: Self = Self(1 << 1);
+    /// Formal charge promotes conjugation (allylic cation/anion, etc.).
+    pub const CHARGE_MEDIATOR: Self = Self(1 << 2);
+    /// Hypervalent centre capable of bridging multiple π partners.
+    pub const HYPERVALENT_BRIDGE: Self = Self(1 << 3);
+
+    /// Returns `true` when no roles are recorded.
+    pub fn is_empty(self) -> bool {
+        self.0 == 0
+    }
+
+    /// Tests whether all roles in `other` are present.
+    pub fn contains(self, other: Self) -> bool {
+        (self.0 & other.0) == other.0
+    }
+
+    /// Inserts the requested roles into the current set.
+    pub fn insert(&mut self, other: Self) {
+        self.0 |= other.0;
+    }
+}
+
+impl Default for ConjugationRole {
+    fn default() -> Self {
+        Self::NONE
+    }
+}
+
+impl BitOr for ConjugationRole {
+    type Output = Self;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Self(self.0 | rhs.0)
+    }
+}
+
+impl BitOrAssign for ConjugationRole {
+    fn bitor_assign(&mut self, rhs: Self) {
+        self.0 |= rhs.0;
+    }
+}
+
+/// Atom annotated with metadata derived from the perception pipeline.
 #[derive(Clone, Debug)]
 pub struct PerceivedAtom {
+    /// Stable identifier matching the input graph.
     pub id: AtomId,
+    /// Chemical element provided by the input graph.
     pub element: Element,
+    /// Formal charge supplied by the source molecule.
     pub formal_charge: i8,
+    /// Number of adjacent bonds in the original graph.
     pub total_degree: u8,
+    /// Sum of bond multiplicities including Kekulé adjustments.
     pub total_valence: u8,
+    /// Indicates whether the atom belongs to at least one ring in the SSSR set.
     pub is_in_ring: bool,
+    /// Indicates whether the atom participates in an aromatic system.
     pub is_aromatic: bool,
+    /// Hybridization state inferred during the perception pipeline.
     pub hybridization: Hybridization,
+    /// Flag denoting participation eligibility in conjugation/resonance searches.
     pub is_conjugation_candidate: bool,
+    /// Estimated number of lone pairs according to valence heuristics.
     pub lone_pairs: u8,
+    /// Cumulative roles that justify conjugation participation.
+    pub conjugation_roles: ConjugationRole,
 }
 
 impl PerceivedAtom {
+    /// Creates a perceived atom with default perception metadata.
     fn new(id: AtomId, element: Element, formal_charge: i8, total_degree: u8) -> Self {
         Self {
             id,
@@ -40,22 +113,32 @@ impl PerceivedAtom {
             hybridization: Hybridization::Unknown,
             is_conjugation_candidate: false,
             lone_pairs: 0,
+            conjugation_roles: ConjugationRole::NONE,
         }
     }
 }
 
+/// Bond annotated with metadata derived from the perception pipeline.
 #[derive(Clone, Debug)]
 pub struct PerceivedBond {
+    /// Stable identifier matching the input graph.
     pub id: BondId,
+    /// Bond order supplied by the input graph.
     pub order: BondOrder,
+    /// Identifier of one endpoint in the input graph.
     pub start_atom_id: AtomId,
+    /// Identifier of the other endpoint in the input graph.
     pub end_atom_id: AtomId,
+    /// Indicates whether the bond belongs to at least one ring in the SSSR set.
     pub is_in_ring: bool,
+    /// Indicates whether the bond participates in an aromatic system.
     pub is_aromatic: bool,
+    /// Kekulé order assigned during Kekulization, when applicable.
     pub kekule_order: Option<BondOrder>,
 }
 
 impl PerceivedBond {
+    /// Creates a perceived bond with default perception metadata.
     fn new(id: BondId, order: BondOrder, start_atom_id: AtomId, end_atom_id: AtomId) -> Self {
         Self {
             id,
@@ -68,6 +151,16 @@ impl PerceivedBond {
         }
     }
 
+    /// Returns the opposite atom identifier given one endpoint.
+    ///
+    /// # Arguments
+    ///
+    /// * `atom_id` - The known endpoint of the bond.
+    ///
+    /// # Returns
+    ///
+    /// The identifier of the other atom connected by the bond. The function
+    /// assumes `atom_id` matches either `start_atom_id` or `end_atom_id`.
     pub fn other_end(&self, atom_id: AtomId) -> AtomId {
         if self.start_atom_id == atom_id {
             self.end_atom_id
@@ -77,18 +170,44 @@ impl PerceivedBond {
     }
 }
 
+/// Comprehensive snapshot of all perception-derived metadata.
 pub struct ChemicalPerception {
+    /// Atom-centric perception data.
     pub atoms: Vec<PerceivedAtom>,
+    /// Bond-centric perception data.
     pub bonds: Vec<PerceivedBond>,
+    /// Adjacency list referencing indices and bond identifiers.
     pub adjacency: Vec<Vec<(usize, BondId)>>,
 
+    /// Maps external `AtomId` values to internal vector indices.
     pub atom_id_to_index: HashMap<AtomId, usize>,
+    /// Maps external `BondId` values to internal vector indices.
     pub bond_id_to_index: HashMap<BondId, usize>,
 
+    /// Ring data detected during the perception pipeline.
     pub ring_info: RingInfo,
 }
 
 impl ChemicalPerception {
+    /// Builds a `ChemicalPerception` from any [`MoleculeGraph`].
+    ///
+    /// The function copies core topology data, enriches it with ring and
+    /// aromaticity annotations, assigns Kekulé resonance orders, infers atomic
+    /// states, and finally flags resonance candidates.
+    ///
+    /// # Arguments
+    ///
+    /// * `graph` - An implementation of [`MoleculeGraph`].
+    ///
+    /// # Returns
+    ///
+    /// A fully populated `ChemicalPerception` ready for downstream resonance
+    /// identification.
+    ///
+    /// # Errors
+    ///
+    /// Propagates [`PerceptionError`] variants when the input graph contains
+    /// structural inconsistencies or when intermediate perception stages fail.
     pub fn from_graph<G>(graph: &G) -> Result<Self, PerceptionError>
     where
         G: MoleculeGraph,
