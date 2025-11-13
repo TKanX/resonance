@@ -36,8 +36,8 @@ fn run_resonance_case(case: &ResonanceCase) {
     for (idx, (actual_system, expected_system)) in actual.iter().zip(expected.iter()).enumerate() {
         assert_eq!(
             actual_system, expected_system,
-            "case {} ({}), system {} mismatch; tags: {:?}",
-            case.slug, case.title, idx, case.tags
+            "case {} ({}), system {} mismatch",
+            case.slug, case.title, idx
         );
     }
 }
@@ -63,8 +63,8 @@ fn catalog_has_unique_slugs() {
             case.slug
         );
         assert!(
-            !case.tags.is_empty(),
-            "case {} should expose at least one tag",
+            !case.title.is_empty(),
+            "case {} should expose a non-empty title",
             case.slug
         );
     }

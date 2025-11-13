@@ -22,7 +22,6 @@ impl ResonanceSystemExpectation {
 pub struct ResonanceCase {
     pub slug: &'static str,
     pub title: &'static str,
-    pub tags: &'static [&'static str],
     pub build: fn() -> TestMolecule,
     pub expected: &'static [ResonanceSystemExpectation],
 }
@@ -39,7 +38,6 @@ impl ResonanceCase {
 macro_rules! resonance_cases {
     ( $( $name:ident => {
             title: $title:expr,
-            tags: $tags:expr,
             molecule: $builder:path,
             systems: [ $( { atoms: $atoms:expr, bonds: $bonds:expr } ),* $(,)? ],
         }
@@ -48,7 +46,6 @@ macro_rules! resonance_cases {
             pub const $name: ResonanceCase = ResonanceCase {
                 slug: stringify!($name),
                 title: $title,
-                tags: $tags,
                 build: $builder,
                 expected: &[
                     $(
@@ -76,107 +73,39 @@ macro_rules! resonance_cases {
 }
 
 resonance_cases! {
-    glycine_zwitterion => {
-        title: "Glycine Zwitterion",
-        tags: &["biomolecule", "zwitterion", "carboxylate"],
-        molecule: molecules::build_glycine_zwitterion,
-        systems: [
-            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
-        ],
-    },
+    // Amino acid zwitterions
     alanine_zwitterion => {
         title: "Alanine Zwitterion",
-        tags: &["biomolecule", "zwitterion", "carboxylate"],
         molecule: molecules::build_alanine_zwitterion,
         systems: [
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
         ],
     },
-    valine_zwitterion => {
-        title: "Valine Zwitterion",
-        tags: &["biomolecule", "zwitterion", "carboxylate"],
-        molecule: molecules::build_valine_zwitterion,
-        systems: [
-            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
-        ],
-    },
-    leucine_zwitterion => {
-        title: "Leucine Zwitterion",
-        tags: &["biomolecule", "zwitterion", "carboxylate"],
-        molecule: molecules::build_leucine_zwitterion,
-        systems: [
-            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
-        ],
-    },
-    isoleucine_zwitterion => {
-        title: "Isoleucine Zwitterion",
-        tags: &["biomolecule", "zwitterion", "carboxylate"],
-        molecule: molecules::build_isoleucine_zwitterion,
-        systems: [
-            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
-        ],
-    },
-    proline_zwitterion => {
-        title: "Proline Zwitterion",
-        tags: &["biomolecule", "zwitterion", "carboxylate", "cyclic"],
-        molecule: molecules::build_proline_zwitterion,
-        systems: [
-            { atoms: || vec![5, 6, 7], bonds: || vec![6, 7] },
-        ],
-    },
-    serine_zwitterion => {
-        title: "Serine Zwitterion",
-        tags: &["biomolecule", "zwitterion", "carboxylate"],
-        molecule: molecules::build_serine_zwitterion,
-        systems: [
-            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
-        ],
-    },
-    threonine_zwitterion => {
-        title: "Threonine Zwitterion",
-        tags: &["biomolecule", "zwitterion", "carboxylate"],
-        molecule: molecules::build_threonine_zwitterion,
-        systems: [
-            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
-        ],
-    },
-    cysteine_zwitterion => {
-        title: "Cysteine Zwitterion",
-        tags: &["biomolecule", "zwitterion", "carboxylate", "sulfur"],
-        molecule: molecules::build_cysteine_zwitterion,
-        systems: [
-            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
-        ],
-    },
-    methionine_zwitterion => {
-        title: "Methionine Zwitterion",
-        tags: &["biomolecule", "zwitterion", "sulfur"],
-        molecule: molecules::build_methionine_zwitterion,
-        systems: [
-            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
-        ],
-    },
-    aspartate_zwitterion => {
-        title: "Aspartate Zwitterion",
-        tags: &["biomolecule", "zwitterion", "carboxylate"],
-        molecule: molecules::build_aspartate_zwitterion,
-        systems: [
-            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
-            { atoms: || vec![6, 7, 8], bonds: || vec![6, 7] },
-        ],
-    },
     asparagine_zwitterion => {
         title: "Asparagine Zwitterion",
-        tags: &["biomolecule", "zwitterion", "amide", "carboxylate", "disconnected"],
         molecule: molecules::build_asparagine_zwitterion,
         systems: [
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
             { atoms: || vec![6, 7, 8], bonds: || vec![6, 7] },
         ],
     },
+    aspartate_zwitterion => {
+        title: "Aspartate Zwitterion",
+        molecule: molecules::build_aspartate_zwitterion,
+        systems: [
+            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
+            { atoms: || vec![6, 7, 8], bonds: || vec![6, 7] },
+        ],
+    },
+    cysteine_zwitterion => {
+        title: "Cysteine Zwitterion",
+        molecule: molecules::build_cysteine_zwitterion,
+        systems: [
+            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
+        ],
+    },
     glutamate_zwitterion => {
         title: "Glutamate Zwitterion",
-        tags: &["biomolecule", "zwitterion", "carboxylate"],
         molecule: molecules::build_glutamate_zwitterion,
         systems: [
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
@@ -185,60 +114,79 @@ resonance_cases! {
     },
     glutamine_zwitterion => {
         title: "Glutamine Zwitterion",
-        tags: &["biomolecule", "zwitterion", "carboxylate", "amide"],
         molecule: molecules::build_glutamine_zwitterion,
         systems: [
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
             { atoms: || vec![7, 8, 9], bonds: || vec![7, 8] },
         ],
     },
+    glycine_zwitterion => {
+        title: "Glycine Zwitterion",
+        molecule: molecules::build_glycine_zwitterion,
+        systems: [
+            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
+        ],
+    },
+    isoleucine_zwitterion => {
+        title: "Isoleucine Zwitterion",
+        molecule: molecules::build_isoleucine_zwitterion,
+        systems: [
+            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
+        ],
+    },
+    leucine_zwitterion => {
+        title: "Leucine Zwitterion",
+        molecule: molecules::build_leucine_zwitterion,
+        systems: [
+            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
+        ],
+    },
     lysine_zwitterion => {
         title: "Lysine Zwitterion",
-        tags: &["biomolecule", "zwitterion", "carboxylate", "amine"],
         molecule: molecules::build_lysine_zwitterion,
         systems: [
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
         ],
     },
-    phenylalanine_zwitterion_aromatic => {
-        title: "Phenylalanine Zwitterion (Aromatic Input)",
-        tags: &["biomolecule", "zwitterion", "aromatic"],
-        molecule: molecules::build_phenylalanine_zwitterion_aromatic,
+    methionine_zwitterion => {
+        title: "Methionine Zwitterion",
+        molecule: molecules::build_methionine_zwitterion,
         systems: [
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
-            { atoms: || vec![6, 7, 8, 9, 10, 11], bonds: || vec![6, 7, 8, 9, 10, 11] },
         ],
     },
-    phenylalanine_zwitterion_kekule => {
-        title: "Phenylalanine Zwitterion (Kekulé Input)",
-        tags: &["biomolecule", "zwitterion", "aromatic", "kekule"],
-        molecule: molecules::build_phenylalanine_zwitterion_kekule,
+    proline_zwitterion => {
+        title: "Proline Zwitterion",
+        molecule: molecules::build_proline_zwitterion,
+        systems: [
+            { atoms: || vec![5, 6, 7], bonds: || vec![6, 7] },
+        ],
+    },
+    serine_zwitterion => {
+        title: "Serine Zwitterion",
+        molecule: molecules::build_serine_zwitterion,
         systems: [
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
-            { atoms: || vec![6, 7, 8, 9, 10, 11], bonds: || vec![6, 7, 8, 9, 10, 11] },
         ],
     },
-    tyrosine_zwitterion_aromatic => {
-        title: "Tyrosine Zwitterion (Aromatic Input)",
-        tags: &["biomolecule", "zwitterion", "aromatic", "carboxylate", "phenol"],
-        molecule: molecules::build_tyrosine_zwitterion_aromatic,
+    threonine_zwitterion => {
+        title: "Threonine Zwitterion",
+        molecule: molecules::build_threonine_zwitterion,
         systems: [
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
-            { atoms: || vec![6, 7, 8, 9, 10, 11, 12], bonds: || vec![6, 7, 8, 9, 10, 11, 12] },
         ],
     },
-    tyrosine_zwitterion_kekule => {
-        title: "Tyrosine Zwitterion (Kekulé Input)",
-        tags: &["biomolecule", "zwitterion", "aromatic", "carboxylate", "phenol"],
-        molecule: molecules::build_tyrosine_zwitterion_kekule,
+    valine_zwitterion => {
+        title: "Valine Zwitterion",
+        molecule: molecules::build_valine_zwitterion,
         systems: [
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
-            { atoms: || vec![6, 7, 8, 9, 10, 11, 12], bonds: || vec![6, 7, 8, 9, 10, 11, 12] },
         ],
     },
+
+    // Aromatic amino acid zwitterions
     histidine_zwitterion_aromatic => {
-        title: "Histidine Zwitterion (Aromatic Input)",
-        tags: &["biomolecule", "zwitterion", "aromatic", "heteroaromatic"],
+        title: "Histidine Zwitterion (Aromatic Representation)",
         molecule: molecules::build_histidine_zwitterion_aromatic,
         systems: [
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
@@ -246,17 +194,31 @@ resonance_cases! {
         ],
     },
     histidine_zwitterion_kekule => {
-        title: "Histidine Zwitterion (Kekulé Input)",
-        tags: &["biomolecule", "zwitterion", "aromatic", "heteroaromatic", "kekule"],
+        title: "Histidine Zwitterion (Kekulé Representation)",
         molecule: molecules::build_histidine_zwitterion_kekule,
         systems: [
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
             { atoms: || vec![6, 7, 8, 9, 10], bonds: || vec![6, 7, 8, 9, 10] },
         ],
     },
+    phenylalanine_zwitterion_aromatic => {
+        title: "Phenylalanine Zwitterion (Aromatic Representation)",
+        molecule: molecules::build_phenylalanine_zwitterion_aromatic,
+        systems: [
+            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
+            { atoms: || vec![6, 7, 8, 9, 10, 11], bonds: || vec![6, 7, 8, 9, 10, 11] },
+        ],
+    },
+    phenylalanine_zwitterion_kekule => {
+        title: "Phenylalanine Zwitterion (Kekulé Representation)",
+        molecule: molecules::build_phenylalanine_zwitterion_kekule,
+        systems: [
+            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
+            { atoms: || vec![6, 7, 8, 9, 10, 11], bonds: || vec![6, 7, 8, 9, 10, 11] },
+        ],
+    },
     tryptophan_zwitterion_aromatic => {
-        title: "Tryptophan Zwitterion (Aromatic Input)",
-        tags: &["biomolecule", "zwitterion", "aromatic", "indole"],
+        title: "Tryptophan Zwitterion (Aromatic Representation)",
         molecule: molecules::build_tryptophan_zwitterion_aromatic,
         systems: [
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
@@ -264,285 +226,278 @@ resonance_cases! {
         ],
     },
     tryptophan_zwitterion_kekule => {
-        title: "Tryptophan Zwitterion (Kekulé Input)",
-        tags: &["biomolecule", "zwitterion", "kekule", "indole"],
+        title: "Tryptophan Zwitterion (Kekulé Representation)",
         molecule: molecules::build_tryptophan_zwitterion_kekule,
         systems: [
             { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
             { atoms: || vec![6, 7, 8, 9, 10, 11, 12, 13, 14], bonds: || vec![6, 7, 8, 9, 10, 11, 12, 13, 14, 15] },
         ],
     },
-    uracil_aromatic_input => {
-        title: "Uracil (Aromatic Input)",
-        tags: &["biomolecule", "nucleobase", "heteroaromatic", "aromatic-input"],
-        molecule: molecules::build_uracil_aromatic,
+    tyrosine_zwitterion_aromatic => {
+        title: "Tyrosine Zwitterion (Aromatic Representation)",
+        molecule: molecules::build_tyrosine_zwitterion_aromatic,
         systems: [
-            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
+            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
+            { atoms: || vec![6, 7, 8, 9, 10, 11, 12], bonds: || vec![6, 7, 8, 9, 10, 11, 12] },
         ],
     },
-    uracil_kekule_input => {
-        title: "Uracil (Kekulé Input)",
-        tags: &["biomolecule", "nucleobase", "heteroaromatic", "kekule-input"],
-        molecule: molecules::build_uracil_kekule,
+    tyrosine_zwitterion_kekule => {
+        title: "Tyrosine Zwitterion (Kekulé Representation)",
+        molecule: molecules::build_tyrosine_zwitterion_kekule,
         systems: [
-            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
+            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
+            { atoms: || vec![6, 7, 8, 9, 10, 11, 12], bonds: || vec![6, 7, 8, 9, 10, 11, 12] },
         ],
     },
-    thymine_aromatic_input => {
-        title: "Thymine (Aromatic Input)",
-        tags: &["biomolecule", "nucleobase", "heterocycle"],
-        molecule: molecules::build_thymine_aromatic,
-        systems: [
-            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
-        ],
-    },
-    thymine_kekule_input => {
-        title: "Thymine (Kekulé Input)",
-        tags: &["biomolecule", "nucleobase", "heterocycle", "kekule"],
-        molecule: molecules::build_thymine_kekule,
-        systems: [
-            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
-        ],
-    },
-    cytosine_aromatic_input => {
-        title: "Cytosine (Aromatic Input)",
-        tags: &["biomolecule", "nucleobase", "heterocycle"],
-        molecule: molecules::build_cytosine_aromatic,
-        systems: [
-            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
-        ],
-    },
-    cytosine_kekule_input => {
-        title: "Cytosine (Kekulé Input)",
-        tags: &["biomolecule", "nucleobase", "heterocycle", "kekule"],
-        molecule: molecules::build_cytosine_kekule,
-        systems: [
-            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
-        ],
-    },
-    adenine_aromatic_input => {
-        title: "Adenine (Aromatic Input)",
-        tags: &["biomolecule", "nucleobase", "heterocycle", "aromatic"],
+
+    // Nucleobases
+    adenine_aromatic => {
+        title: "Adenine (Aromatic Representation)",
         molecule: molecules::build_adenine_aromatic,
         systems: [
             { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
         ],
     },
-    adenine_kekule_input => {
-        title: "Adenine (Kekulé Input)",
-        tags: &["biomolecule", "nucleobase", "heterocycle", "kekule"],
+    adenine_kekule => {
+        title: "Adenine (Kekulé Representation)",
         molecule: molecules::build_adenine_kekule,
         systems: [
             { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
         ],
     },
-    guanine_aromatic_input => {
-        title: "Guanine (Aromatic Input)",
-        tags: &["biomolecule", "nucleobase", "heterocycle", "fused"],
+    cytosine_aromatic => {
+        title: "Cytosine (Aromatic Representation)",
+        molecule: molecules::build_cytosine_aromatic,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
+        ],
+    },
+    cytosine_kekule => {
+        title: "Cytosine (Kekulé Representation)",
+        molecule: molecules::build_cytosine_kekule,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
+        ],
+    },
+    guanine_aromatic => {
+        title: "Guanine (Aromatic Representation)",
         molecule: molecules::build_guanine_aromatic,
         systems: [
             { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
         ],
     },
-    guanine_kekule_input => {
-        title: "Guanine (Kekulé Input)",
-        tags: &["biomolecule", "nucleobase", "heterocycle", "fused", "kekule"],
+    guanine_kekule => {
+        title: "Guanine (Kekulé Representation)",
         molecule: molecules::build_guanine_kekule,
         systems: [
             { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
         ],
     },
-    deoxyadenosine_aromatic_input => {
-        title: "Deoxyadenosine (Aromatic Input)",
-        tags: &["biomolecule", "nucleoside", "aromatic", "purine"],
-        molecule: molecules::build_deoxyadenosine_aromatic,
+    thymine_aromatic => {
+        title: "Thymine (Aromatic Representation)",
+        molecule: molecules::build_thymine_aromatic,
         systems: [
-            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
         ],
     },
-    deoxyadenosine_kekule_input => {
-        title: "Deoxyadenosine (Kekulé Input)",
-        tags: &["biomolecule", "nucleoside", "kekule", "purine"],
-        molecule: molecules::build_deoxyadenosine_kekule,
+    thymine_kekule => {
+        title: "Thymine (Kekulé Representation)",
+        molecule: molecules::build_thymine_kekule,
         systems: [
-            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
         ],
     },
-    dinucleotide_backbone => {
-        title: "Dinucleotide Backbone Fragment",
-        tags: &["biomolecule", "phosphate", "backbone"],
-        molecule: molecules::build_dinucleotide_backbone,
+    uracil_aromatic => {
+        title: "Uracil (Aromatic Representation)",
+        molecule: molecules::build_uracil_aromatic,
         systems: [
-            { atoms: || vec![2, 3, 4], bonds: || vec![4, 5] },
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
         ],
     },
-    acbuol_isolated_lactone => {
-        title: "ACBUOL - Isolated Lactone Resonance",
-        tags: &["lactone", "polycyclic", "isolated-resonance"],
-        molecule: molecules::build_acbuol,
+    uracil_kekule => {
+        title: "Uracil (Kekulé Representation)",
+        molecule: molecules::build_uracil_kekule,
         systems: [
-            { atoms: || vec![4, 5, 6], bonds: || vec![8, 9] },
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7] },
         ],
     },
-    afurpo10_cage_ether => {
-        title: "AFURPO10 - Saturated Cage Ether",
-        tags: &["saturated", "polycyclic", "negative-control"],
-        molecule: molecules::build_afurpo10,
-        systems: [],
-    },
-    adamantane_saturated_polycycle => {
-        title: "Adamantane (Saturated Polycyclic Alkane)",
-        tags: &["saturated", "polycyclic", "negative-case", "alkane"],
-        molecule: molecules::build_adamantane,
-        systems: [],
-    },
-    decalin_saturated_fused_bicycle => {
-        title: "Decalin (Saturated Fused Bicyclic Alkane)",
-        tags: &["saturated", "fused", "negative-case", "alkane"],
-        molecule: molecules::build_decalin,
-        systems: [],
-    },
-    abaxes_dithiacyclohexene => {
-        title: "ABAXES - 1,4-dithiacyclohex-2-ene",
-        tags: &["heterocycle", "sulfur", "partial-conjugation"],
-        molecule: molecules::build_abaxes,
-        systems: [
-            { atoms: || vec![0, 1, 2, 3], bonds: || vec![0, 1, 2] },
-        ],
-    },
-    methyl_pyridine_aromatic_input => {
-        title: "4-Methylpyridine (Aromatic Input)",
-        tags: &["aromatic", "heterocycle"],
-        molecule: molecules::build_4_methylpyridine_aromatic,
-        systems: [
-            { atoms: || vec![0, 1, 2, 3, 4, 5], bonds: || vec![0, 1, 2, 3, 4, 5] },
-        ],
-    },
-    methyl_pyridine_kekule_input => {
-        title: "4-Methylpyridine (Kekulé Input)",
-        tags: &["aromatic", "heterocycle", "kekule"],
-        molecule: molecules::build_4_methylpyridine_kekule,
-        systems: [
-            { atoms: || vec![0, 1, 2, 3, 4, 5], bonds: || vec![0, 1, 2, 3, 4, 5] },
-        ],
-    },
-    acridine_aromatic_input => {
-        title: "Acridine (Aromatic Input)",
-        tags: &["aromatic", "heterocycle", "fused"],
-        molecule: molecules::build_acridine_aromatic,
-        systems: [
-            { atoms: || (0..14).collect(), bonds: || (0..16).collect() },
-        ],
-    },
-    acridine_kekule_input => {
-        title: "Acridine (Kekulé Input)",
-        tags: &["aromatic", "heterocycle", "fused", "kekule"],
-        molecule: molecules::build_acridine_kekule,
-        systems: [
-            { atoms: || (0..14).collect(), bonds: || (0..16).collect() },
-        ],
-    },
-    phosphinane_saturated_heterocycle => {
-        title: "Phosphinane (Saturated Heterocycle)",
-        tags: &["saturated", "heterocycle", "phosphorus", "negative-case"],
-        molecule: molecules::build_phosphinane,
-        systems: [],
-    },
-    trinitrobenzene_aromatic_input => {
-        title: "1,3,5-Trinitrobenzene (Aromatic Input)",
-        tags: &["aromatic", "nitro", "cross-conjugation"],
-        molecule: molecules::build_trinitrobenzene_aromatic,
-        systems: [
-            { atoms: || (0..15).collect(), bonds: || (0..15).collect() },
-        ],
-    },
-    trinitrobenzene_kekule_input => {
-        title: "1,3,5-Trinitrobenzene (Kekulé Input)",
-        tags: &["aromatic", "nitro", "cross-conjugation", "kekule"],
-        molecule: molecules::build_trinitrobenzene_kekule,
-        systems: [
-            { atoms: || (0..15).collect(), bonds: || (0..15).collect() },
-        ],
-    },
-    tetramethylthiourea_resonance => {
-        title: "Tetramethylthiourea Resonance",
-        tags: &["thioamide", "sulfur", "charge-delocalization"],
-        molecule: molecules::build_tetramethylthiourea,
-        systems: [
-            { atoms: || vec![0, 1, 2, 3], bonds: || vec![0, 1, 2] },
-        ],
-    },
-    dimethyl_sulfoxide_polar_bond => {
-        title: "Dimethyl Sulfoxide (Polar S-O bond)",
-        tags: &["sulfur", "polar", "negative-case"],
-        molecule: molecules::build_dimethyl_sulfoxide,
-        systems: [],
-    },
-    methanesulfonamide_cross_conjugation => {
-        title: "Methanesulfonamide (Cross-Conjugation)",
-        tags: &["sulfur", "amide", "cross-conjugation"],
-        molecule: molecules::build_methanesulfonamide,
-        systems: [
-            { atoms: || vec![0, 1, 2], bonds: || vec![0, 1] },
-        ],
-    },
-    chloroacetyl_chloride => {
-        title: "Chloroacetyl Chloride",
-        tags: &["acyl-halide", "p-pi-conjugation", "chlorine"],
-        molecule: molecules::build_chloroacetyl_chloride,
-        systems: [
-            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
-        ],
-    },
-    adenosine_aromatic_input => {
-        title: "Adenosine (Aromatic Input)",
-        tags: &["biomolecule", "nucleoside", "heteroaromatic", "purine"],
+
+    // Nucleosides and phosphate fragments
+    adenosine_aromatic => {
+        title: "Adenosine (Aromatic Representation)",
         molecule: molecules::build_adenosine_aromatic,
         systems: [
             { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
         ],
     },
-    adenosine_kekule_input => {
-        title: "Adenosine (Kekulé Input)",
-        tags: &["biomolecule", "nucleoside", "heteroaromatic", "purine", "kekule"],
+    adenosine_kekule => {
+        title: "Adenosine (Kekulé Representation)",
         molecule: molecules::build_adenosine_kekule,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
+        ],
+    },
+    deoxyadenosine_aromatic => {
+        title: "Deoxyadenosine (Aromatic Representation)",
+        molecule: molecules::build_deoxyadenosine_aromatic,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
+        ],
+    },
+    deoxyadenosine_kekule => {
+        title: "Deoxyadenosine (Kekulé Representation)",
+        molecule: molecules::build_deoxyadenosine_kekule,
         systems: [
             { atoms: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9], bonds: || vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
         ],
     },
     dimethyl_phosphate_anion => {
         title: "Dimethyl Phosphate Anion",
-        tags: &["biomolecule", "phosphate", "anion"],
         molecule: molecules::build_dimethyl_phosphate_anion,
         systems: [
             { atoms: || vec![0, 1, 2], bonds: || vec![0, 1] },
         ],
     },
-    choline_cation_saturated_salt => {
-        title: "Choline Cation (Saturated Quaternary Ammonium Salt)",
-        tags: &["saturated", "cation", "negative-case", "biomolecule"],
-        molecule: molecules::build_choline_cation,
-        systems: [],
+    dinucleotide_backbone => {
+        title: "Dinucleotide Backbone Fragment",
+        molecule: molecules::build_dinucleotide_backbone,
+        systems: [
+            { atoms: || vec![2, 3, 4], bonds: || vec![4, 5] },
+        ],
     },
-    perchloric_acid_hypervalent_center => {
-        title: "Perchloric Acid",
-        tags: &["organic", "halogen-containing", "hypervalent"],
-        molecule: molecules::build_perchloric_acid,
+
+    // Aromatic heterocycles and polycycles
+    abaxes_dithiacyclohexene => {
+        title: "ABAXES - 1,4-dithiacyclohex-2-ene",
+        molecule: molecules::build_abaxes,
         systems: [
             { atoms: || vec![0, 1, 2, 3], bonds: || vec![0, 1, 2] },
         ],
     },
+    acridine_aromatic => {
+        title: "Acridine (Aromatic Representation)",
+        molecule: molecules::build_acridine_aromatic,
+        systems: [
+            { atoms: || (0..14).collect(), bonds: || (0..16).collect() },
+        ],
+    },
+    acridine_kekule => {
+        title: "Acridine (Kekulé Representation)",
+        molecule: molecules::build_acridine_kekule,
+        systems: [
+            { atoms: || (0..14).collect(), bonds: || (0..16).collect() },
+        ],
+    },
+    methyl_pyridine_aromatic => {
+        title: "4-Methylpyridine (Aromatic Representation)",
+        molecule: molecules::build_4_methylpyridine_aromatic,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5], bonds: || vec![0, 1, 2, 3, 4, 5] },
+        ],
+    },
+    methyl_pyridine_kekule => {
+        title: "4-Methylpyridine (Kekulé Representation)",
+        molecule: molecules::build_4_methylpyridine_kekule,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4, 5], bonds: || vec![0, 1, 2, 3, 4, 5] },
+        ],
+    },
+    trinitrobenzene_aromatic => {
+        title: "1,3,5-Trinitrobenzene (Aromatic Representation)",
+        molecule: molecules::build_trinitrobenzene_aromatic,
+        systems: [
+            { atoms: || (0..15).collect(), bonds: || (0..15).collect() },
+        ],
+    },
+    trinitrobenzene_kekule => {
+        title: "1,3,5-Trinitrobenzene (Kekulé Representation)",
+        molecule: molecules::build_trinitrobenzene_kekule,
+        systems: [
+            { atoms: || (0..15).collect(), bonds: || (0..15).collect() },
+        ],
+    },
+
+    // Carbonyl and sulfur resonance benchmarks
+    acbuol_isolated_lactone => {
+        title: "ACBUOL - Isolated Lactone Resonance",
+        molecule: molecules::build_acbuol,
+        systems: [
+            { atoms: || vec![4, 5, 6], bonds: || vec![8, 9] },
+        ],
+    },
+    chloroacetyl_chloride => {
+        title: "Chloroacetyl Chloride",
+        molecule: molecules::build_chloroacetyl_chloride,
+        systems: [
+            { atoms: || vec![2, 3, 4], bonds: || vec![2, 3] },
+        ],
+    },
+    methanesulfonamide_cross_conjugation => {
+        title: "Methanesulfonamide (Cross-Conjugation)",
+        molecule: molecules::build_methanesulfonamide,
+        systems: [
+            { atoms: || vec![0, 1, 2], bonds: || vec![0, 1] },
+        ],
+    },
+    tetramethylthiourea_resonance => {
+        title: "Tetramethylthiourea Resonance",
+        molecule: molecules::build_tetramethylthiourea,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3], bonds: || vec![0, 1, 2] },
+        ],
+    },
+
+    // Negative controls (minimal resonance)
+    adamantane_saturated_polycycle => {
+        title: "Adamantane (Saturated Polycyclic Alkane)",
+        molecule: molecules::build_adamantane,
+        systems: [],
+    },
+    afurpo10_cage_ether => {
+        title: "AFURPO10 - Saturated Cage Ether",
+        molecule: molecules::build_afurpo10,
+        systems: [],
+    },
+    choline_cation_saturated_salt => {
+        title: "Choline Cation (Saturated Quaternary Ammonium Salt)",
+        molecule: molecules::build_choline_cation,
+        systems: [],
+    },
+    decalin_saturated_fused_bicycle => {
+        title: "Decalin (Saturated Fused Bicyclic Alkane)",
+        molecule: molecules::build_decalin,
+        systems: [],
+    },
+    dimethyl_sulfoxide_polar_bond => {
+        title: "Dimethyl Sulfoxide (Polar S-O bond)",
+        molecule: molecules::build_dimethyl_sulfoxide,
+        systems: [],
+    },
+    phosphinane_saturated_heterocycle => {
+        title: "Phosphinane (Saturated Heterocycle)",
+        molecule: molecules::build_phosphinane,
+        systems: [],
+    },
+
+    // Inorganic hypervalent systems
     perchlorate_anion_delocalization => {
         title: "Perchlorate Anion Delocalization",
-        tags: &["inorganic", "halogen-containing", "delocalization-anion"],
         molecule: molecules::build_perchlorate_anion,
         systems: [
             { atoms: || vec![0, 1, 2, 3, 4], bonds: || vec![0, 1, 2, 3] },
         ],
     },
+    perchloric_acid_hypervalent_center => {
+        title: "Perchloric Acid",
+        molecule: molecules::build_perchloric_acid,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3], bonds: || vec![0, 1, 2] },
+        ],
+    },
+
+    // Extended conjugation benchmarks
     fullerene_c60_conjugated_sphere => {
-        title: "Fullerene C60 (Kekulé Input)",
-        tags: &["macrocyclic", "extended-conjugation", "polycyclic", "kekule"],
+        title: "Fullerene C60 (Kekulé Representation)",
         molecule: molecules::build_fullerene_c60,
         systems: [
             { atoms: || (0..60).collect(), bonds: || (0..90).collect() },
