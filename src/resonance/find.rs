@@ -126,7 +126,9 @@ mod tests {
     use super::*;
     use crate::core::atom::{AtomId, Element};
     use crate::core::bond::{BondId, BondOrder};
-    use crate::perception::{ChemicalPerception, Hybridization, PerceivedAtom, PerceivedBond};
+    use crate::perception::{
+        ChemicalPerception, ConjugationRole, Hybridization, PerceivedAtom, PerceivedBond,
+    };
     use std::collections::HashMap;
 
     #[derive(Clone, Copy)]
@@ -226,6 +228,11 @@ mod tests {
                 hybridization,
                 is_conjugation_candidate: atom.is_candidate,
                 lone_pairs: 0,
+                conjugation_roles: if atom.is_candidate {
+                    ConjugationRole::PI_CARRIER
+                } else {
+                    ConjugationRole::NONE
+                },
             });
             atom_id_to_index.insert(idx, idx);
         }

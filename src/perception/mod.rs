@@ -10,6 +10,7 @@ use crate::graph::traits::{AtomView, BondView, MoleculeGraph};
 use crate::perception::ring::RingInfo;
 use crate::resonance;
 use std::collections::{HashMap, HashSet};
+use std::ops::{BitOr, BitOrAssign};
 
 mod aromaticity;
 mod kekulize;
@@ -18,6 +19,58 @@ mod state;
 
 /// Hybridization states assigned to perceived atoms.
 pub use state::Hybridization;
+
+/// Bitflag-style roles that justify conjugation participation.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ConjugationRole(u8);
+
+impl ConjugationRole {
+    /// Empty role set.
+    pub const NONE: Self = Self(0);
+    /// Atom intrinsically carries a π system (sp/sp²/aromatic).
+    pub const PI_CARRIER: Self = Self(1);
+    /// Atom can donate a lone pair into a neighbouring π system.
+    pub const LONE_PAIR_DONOR: Self = Self(1 << 1);
+    /// Formal charge promotes conjugation (allylic cation/anion, etc.).
+    pub const CHARGE_MEDIATOR: Self = Self(1 << 2);
+    /// Hypervalent centre capable of bridging multiple π partners.
+    pub const HYPERVALENT_BRIDGE: Self = Self(1 << 3);
+
+    /// Returns `true` when no roles are recorded.
+    pub fn is_empty(self) -> bool {
+        self.0 == 0
+    }
+
+    /// Tests whether all roles in `other` are present.
+    pub fn contains(self, other: Self) -> bool {
+        (self.0 & other.0) == other.0
+    }
+
+    /// Inserts the requested roles into the current set.
+    pub fn insert(&mut self, other: Self) {
+        self.0 |= other.0;
+    }
+}
+
+impl Default for ConjugationRole {
+    fn default() -> Self {
+        Self::NONE
+    }
+}
+
+impl BitOr for ConjugationRole {
+    type Output = Self;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Self(self.0 | rhs.0)
+    }
+}
+
+impl BitOrAssign for ConjugationRole {
+    fn bitor_assign(&mut self, rhs: Self) {
+        self.0 |= rhs.0;
+    }
+}
 
 /// Atom annotated with metadata derived from the perception pipeline.
 #[derive(Clone, Debug)]
@@ -42,6 +95,8 @@ pub struct PerceivedAtom {
     pub is_conjugation_candidate: bool,
     /// Estimated number of lone pairs according to valence heuristics.
     pub lone_pairs: u8,
+    /// Cumulative roles that justify conjugation participation.
+    pub conjugation_roles: ConjugationRole,
 }
 
 impl PerceivedAtom {
@@ -58,6 +113,7 @@ impl PerceivedAtom {
             hybridization: Hybridization::Unknown,
             is_conjugation_candidate: false,
             lone_pairs: 0,
+            conjugation_roles: ConjugationRole::NONE,
         }
     }
 }
