@@ -524,6 +524,22 @@ resonance_cases! {
         molecule: molecules::build_choline_cation,
         systems: [],
     },
+    perchloric_acid_hypervalent_center => {
+        title: "Perchloric Acid",
+        tags: &["organic", "halogen-containing", "hypervalent"],
+        molecule: molecules::build_perchloric_acid,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3], bonds: || vec![0, 1, 2] },
+        ],
+    },
+    perchlorate_anion_delocalization => {
+        title: "Perchlorate Anion Delocalization",
+        tags: &["inorganic", "halogen-containing", "delocalization-anion"],
+        molecule: molecules::build_perchlorate_anion,
+        systems: [
+            { atoms: || vec![0, 1, 2, 3, 4], bonds: || vec![0, 1, 2, 3] },
+        ],
+    },
     fullerene_c60_conjugated_sphere => {
         title: "Fullerene C60 (Kekulé Input)",
         tags: &["macrocyclic", "extended-conjugation", "polycyclic", "kekule"],

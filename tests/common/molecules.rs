@@ -1,5 +1,5 @@
 use super::graph::TestMolecule;
-use pauling::{AtomId, BondId, BondOrder, Element};
+use pauling::{BondId, BondOrder, Element};
 
 pub fn build_glycine_zwitterion() -> TestMolecule {
     let mut mol = TestMolecule::new();
@@ -2528,6 +2528,42 @@ pub fn build_choline_cation() -> TestMolecule {
     mol.add_bond(17, 5, 18, BondOrder::Single);
     mol.add_bond(18, 5, 19, BondOrder::Single);
     mol.add_bond(19, 6, 20, BondOrder::Single);
+
+    mol
+}
+
+pub fn build_perchloric_acid() -> TestMolecule {
+    let mut mol = TestMolecule::new();
+
+    mol.add_atom(0, Element::Cl, 0);
+    mol.add_atom(1, Element::O, 0);
+    mol.add_atom(2, Element::O, 0);
+    mol.add_atom(3, Element::O, 0);
+    mol.add_atom(4, Element::O, 0);
+    mol.add_atom(5, Element::H, 0);
+
+    mol.add_bond(0, 0, 1, BondOrder::Double);
+    mol.add_bond(1, 0, 2, BondOrder::Double);
+    mol.add_bond(2, 0, 3, BondOrder::Double);
+    mol.add_bond(3, 0, 4, BondOrder::Single);
+    mol.add_bond(4, 4, 5, BondOrder::Single);
+
+    mol
+}
+
+pub fn build_perchlorate_anion() -> TestMolecule {
+    let mut mol = TestMolecule::new();
+
+    mol.add_atom(0, Element::Cl, 0);
+    mol.add_atom(1, Element::O, 0);
+    mol.add_atom(2, Element::O, 0);
+    mol.add_atom(3, Element::O, 0);
+    mol.add_atom(4, Element::O, -1);
+
+    mol.add_bond(0, 0, 1, BondOrder::Double);
+    mol.add_bond(1, 0, 2, BondOrder::Double);
+    mol.add_bond(2, 0, 3, BondOrder::Double);
+    mol.add_bond(3, 0, 4, BondOrder::Single);
 
     mol
 }
